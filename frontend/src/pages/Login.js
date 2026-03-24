@@ -44,7 +44,7 @@ export default function Login() {
     <>
       {/* CABEÇALHO DO LOGIN (SEM BOTÕES) */}
       <header className="login-header">
-        <h1>Chamados TI</h1>
+        <h1>Deskora</h1>
         <p>Bem-vindo novamente! Entre para acompanhar e resolver demandas.</p>
       </header>
 

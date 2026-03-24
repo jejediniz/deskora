@@ -2,11 +2,11 @@ const AppError = require('../utils/AppError')
 const logger = require('../utils/logger')
 const chamadosRepository = require('../repositories/chamadosRepository')
 
-const STATUS_VALIDOS = ['aberto', 'em_andamento', 'fechado']
+const STATUS_VALIDOS = ['aberto', 'em_andamento', 'concluido']
 const PRIORIDADES_VALIDAS = ['baixa', 'media', 'alta']
 
 exports.create = async (dados, usuarioId) => {
-  const { titulo, descricao, prioridade } = dados
+  const { titulo, descricao, prioridade, setor } = dados
 
   if (!titulo || !descricao) {
     throw new AppError('Título e descrição são obrigatórios', 400)
@@ -24,6 +24,7 @@ exports.create = async (dados, usuarioId) => {
       descricao,
       prioridade: prioridadeFinal,
       status: statusInicial,
+      setor,
       tecnicoId: dados.tecnicoId
     },
     usuarioId
@@ -117,8 +118,8 @@ exports.update = async (
       usuarioId
     })
 
-    if (chamadoAtualizado.status === 'fechado') {
-      logger.audit('chamado.fechado', {
+    if (chamadoAtualizado.status === 'concluido') {
+      logger.audit('chamado.concluido', {
         chamadoId: chamadoAtualizado.id,
         usuarioId
       })

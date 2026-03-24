@@ -211,6 +211,7 @@ body {
 
 .status-badge.aberto { background: #e0f2fe; color: #0c4a6e; }
 .status-badge.em_andamento { background: #fff8e1; color: #b45309; }
+.status-badge.concluido { background: #bbf7d0; color: #166534; }
 .status-badge.fechado { background: #dcfce7; color: #14532d; }
 .status-badge.cancelado { background: #fee2e2; color: #991b1b; }
 .status-badge.aguardando_cliente { background: #ede9fe; color: #5b21b6; }
@@ -407,6 +408,159 @@ body {
   margin: 0;
   color: var(--muted);
   font-size: 13px;
+}
+
+.metric-card--clickable {
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.metric-card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 28px rgba(15, 23, 42, .12);
+}
+
+.metric-card--clickable:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, .5);
+  outline-offset: 3px;
+}
+
+.dashboard-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.dashboard-modal {
+  width: min(880px, 92vw);
+  max-height: 85vh;
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, .2);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow: hidden;
+}
+
+.dashboard-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-modal__header h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.dashboard-modal__subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.dashboard-modal__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboard-modal__summary div {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.dashboard-modal__summary strong {
+  font-size: 16px;
+}
+
+.dashboard-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  overflow: auto;
+}
+
+.dashboard-modal__item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-modal__item strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.dashboard-modal__meta {
+  display: flex;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dashboard-modal__side {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dashboard-modal__priority {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.dashboard-modal__empty {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.dashboard-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .dashboard-modal {
+    padding: 18px;
+  }
+
+  .dashboard-modal__summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-modal__item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-modal__side {
+    text-align: left;
+  }
 }
 
 .login-header {
@@ -671,8 +825,33 @@ body {
   color: var(--muted);
   padding: 14px;
   border-bottom: 1px solid var(--border);
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.chamados-table th:nth-child(1),
+.chamados-table td:nth-child(1) {
+  width: auto;
+}
+
+.chamados-table th:nth-child(2),
+.chamados-table td:nth-child(2) {
+  width: auto;
+}
+
+.chamados-table th:nth-child(3),
+.chamados-table td:nth-child(3) {
+  width: auto;
+}
+
+.chamados-table th:nth-child(4),
+.chamados-table td:nth-child(4) {
+  width: auto;
+}
+
+.chamados-table th:nth-child(5),
+.chamados-table td:nth-child(5) {
+  width: auto;
 }
 
 .chamados-table td {
@@ -684,6 +863,12 @@ body {
   word-break: break-word;
   min-width: 0;
 }
+
+.chamados-table th:nth-child(2),
+.chamados-table td:nth-child(2) {
+  max-width: 240px;
+}
+
 
 .secondary-text {
   font-size: 11px;
@@ -713,7 +898,8 @@ body {
 .status-aguardando_cliente { background: #ede9fe; color: #5b21b6; }
 .status-aguardando_terceiro { background: #e0f2fe; color: #075985; }
 .status-resolvido { background: #e8f5e9; color: #2e7d32; }
-.status-fechado { background: #f3f4f6; color: #374151; }
+.status-concluido { background: #dcfce7; color: #14532d; }
+.status-fechado { background: #dcfce7; color: #14532d; }
 
 /* =========================
    ACTION BUTTONS

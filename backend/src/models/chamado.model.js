@@ -3,8 +3,8 @@ const pool = require('../config/database')
 const ChamadoModel = {
   criar: (dados, usuarioId) => {
     const query = `
-      INSERT INTO chamados (titulo, descricao, status, prioridade, usuario_id, tecnico_id)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO chamados (titulo, descricao, status, prioridade, usuario_id, tecnico_id, setor)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `
     return pool.query(query, [
@@ -13,7 +13,8 @@ const ChamadoModel = {
       dados.status,
       dados.prioridade,
       usuarioId,
-      dados.tecnicoId ?? null
+      dados.tecnicoId ?? null,
+      dados.setor ?? null
     ])
   },
 
@@ -63,8 +64,9 @@ const ChamadoModel = {
         status = COALESCE($3, status),
         prioridade = COALESCE($4, prioridade),
         tecnico_id = COALESCE($5, tecnico_id),
+        setor = COALESCE($6, setor),
         updated_at = NOW()
-      WHERE id = $6 AND usuario_id = $7
+      WHERE id = $7 AND usuario_id = $8
       RETURNING *;
     `
     return pool.query(query, [
@@ -73,6 +75,7 @@ const ChamadoModel = {
       dados.status,
       dados.prioridade,
       dados.tecnicoId,
+      dados.setor,
       id,
       usuarioId
     ])
@@ -87,8 +90,9 @@ const ChamadoModel = {
         status = COALESCE($3, status),
         prioridade = COALESCE($4, prioridade),
         tecnico_id = COALESCE($5, tecnico_id),
+        setor = COALESCE($6, setor),
         updated_at = NOW()
-      WHERE id = $6
+      WHERE id = $7
       RETURNING *;
     `
     return pool.query(query, [
@@ -97,6 +101,7 @@ const ChamadoModel = {
       dados.status,
       dados.prioridade,
       dados.tecnicoId,
+      dados.setor,
       id
     ])
   },

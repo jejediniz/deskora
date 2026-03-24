@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChamados } from "../contextos/chamadosContext";
 import { Button, Card } from "../components/ui";
@@ -32,6 +32,7 @@ function useAnimatedNumber(valor, duracao = 500) {
 export default function Inicio() {
   const { chamados } = useChamados();
   const navigate = useNavigate();
+  const [modalKey, setModalKey] = useState(null);
 
   /* ======================
      MÉTRICAS REAIS
@@ -40,7 +41,9 @@ export default function Inicio() {
 
   const abertos = chamados.filter((c) => c.status === "aberto").length;
   const andamento = chamados.filter((c) => c.status === "em_andamento").length;
-  const fechados = chamados.filter((c) => c.status === "fechado").length;
+  const concluidos = chamados.filter((c) =>
+    ["concluido", "fechado"].includes(c.status)
+  ).length;
 
   /* ======================
      NÚMEROS ANIMADOS
@@ -48,7 +51,7 @@ export default function Inicio() {
   const totalAnimado = useAnimatedNumber(total);
   const abertosAnimado = useAnimatedNumber(abertos);
   const andamentoAnimado = useAnimatedNumber(andamento);
-  const fechadosAnimado = useAnimatedNumber(fechados);
+  const concluidosAnimado = useAnimatedNumber(concluidos);
 
   const metricCards = useMemo(
     () => [
@@ -77,16 +80,81 @@ export default function Inicio() {
         icon: "🛠️",
       },
       {
-        key: "fechados",
-        label: "Fechados",
-        value: fechadosAnimado,
+        key: "concluidos",
+        label: "Concluídos",
+        value: concluidosAnimado,
         sublabel: "Atendimentos concluídos",
         variant: "success",
         icon: "✅",
       },
     ],
-    [totalAnimado, abertosAnimado, andamentoAnimado, fechadosAnimado]
+    [totalAnimado, abertosAnimado, andamentoAnimado, concluidosAnimado]
   );
+
+  const STATUS_LABEL = {
+    aberto: "Aberto",
+    em_andamento: "Em andamento",
+    concluido: "Concluído",
+    fechado: "Concluído",
+  };
+
+  const filtrarPorCard = useCallback(
+    (key) => {
+      if (key === "abertos") return chamados.filter((c) => c.status === "aberto");
+      if (key === "andamento") {
+        return chamados.filter((c) => c.status === "em_andamento");
+      }
+      if (key === "concluidos") {
+        return chamados.filter((c) =>
+          ["concluido", "fechado"].includes(c.status)
+        );
+      }
+      return chamados;
+    },
+    [chamados]
+  );
+
+  const detalhesChamados = useMemo(() => {
+    if (!modalKey) return [];
+    return filtrarPorCard(modalKey);
+  }, [modalKey, filtrarPorCard]);
+
+  const resumoPrioridade = useMemo(() => {
+    return detalhesChamados.reduce(
+      (acc, chamado) => {
+        const prioridade = chamado.prioridade || "media";
+        acc[prioridade] = (acc[prioridade] || 0) + 1;
+        return acc;
+      },
+      { baixa: 0, media: 0, alta: 0 }
+    );
+  }, [detalhesChamados]);
+
+  const fecharModal = useCallback(() => {
+    setModalKey(null);
+  }, []);
+
+  useEffect(() => {
+    if (!modalKey) return;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        fecharModal();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [modalKey, fecharModal]);
+
+  const modalTitle =
+    metricCards.find((card) => card.key === modalKey)?.label || "";
+
+  const formatDate = (value) =>
+    value ? new Date(value).toLocaleDateString("pt-BR") : "—";
 
   return (
     <div>
@@ -111,7 +179,19 @@ export default function Inicio() {
 
       <section className="dashboard-grid">
         {metricCards.map((card) => (
-          <Card key={card.key} className="metric-card">
+          <Card
+            key={card.key}
+            className="metric-card metric-card--clickable"
+            role="button"
+            tabIndex={0}
+            onClick={() => setModalKey(card.key)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setModalKey(card.key);
+              }
+            }}
+          >
             <div className="metric-card__header">
               <span className="metric-card__icon">{card.icon}</span>
               <span className="metric-card__label">{card.label}</span>
@@ -121,6 +201,95 @@ export default function Inicio() {
           </Card>
         ))}
       </section>
+
+      {modalKey && (
+        <div
+          className="dashboard-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={modalTitle}
+          onClick={fecharModal}
+        >
+          <div
+            className="dashboard-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="dashboard-modal__header">
+              <div>
+                <h3>{modalTitle}</h3>
+                <p className="dashboard-modal__subtitle">
+                  {detalhesChamados.length} chamado
+                  {detalhesChamados.length === 1 ? "" : "s"}
+                </p>
+              </div>
+              <Button variant="ghost" onClick={fecharModal}>
+                Fechar
+              </Button>
+            </header>
+
+            <div className="dashboard-modal__summary">
+              <div>
+                <span>Baixa</span>
+                <strong>{resumoPrioridade.baixa}</strong>
+              </div>
+              <div>
+                <span>Média</span>
+                <strong>{resumoPrioridade.media}</strong>
+              </div>
+              <div>
+                <span>Alta</span>
+                <strong>{resumoPrioridade.alta}</strong>
+              </div>
+            </div>
+
+            {detalhesChamados.length === 0 ? (
+              <p className="dashboard-modal__empty">
+                Nenhum chamado encontrado para este filtro.
+              </p>
+            ) : (
+              <ul className="dashboard-modal__list">
+                {detalhesChamados.slice(0, 8).map((chamado) => (
+                  <li key={chamado.id}>
+                    <div className="dashboard-modal__item">
+                      <div>
+                        <strong>{chamado.titulo}</strong>
+                        <div className="dashboard-modal__meta">
+                          <span>
+                            {STATUS_LABEL[chamado.status] || chamado.status}
+                          </span>
+                          <span>{formatDate(chamado.created_at)}</span>
+                        </div>
+                      </div>
+                      <div className="dashboard-modal__side">
+                        <span>
+                          {chamado.solicitante?.nome || "Solicitante —"}
+                        </span>
+                        <span className="dashboard-modal__priority">
+                          {chamado.prioridade || "media"}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {detalhesChamados.length > 8 && (
+              <div className="dashboard-modal__footer">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    fecharModal();
+                    navigate("/chamados");
+                  }}
+                >
+                  Ver todos na gestão
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

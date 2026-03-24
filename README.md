@@ -1,5 +1,5 @@
-# Chamados TI
-Sistema de chamados para pequenas e médias empresas, com backend Node.js/Express e frontend React.
+# Deskora
+Deskora é um sistema de chamados para pequenas e médias empresas, com backend Node.js/Express e frontend React.
 
 **Recursos principais**
 - Autenticação com JWT e controle de permissões (admin, técnico, usuário)

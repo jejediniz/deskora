@@ -12,7 +12,8 @@ import { Button, Input, Select, Textarea } from "../components/ui";
 const STATUS_LABEL = {
   aberto: "Aberto",
   em_andamento: "Em atendimento",
-  fechado: "Fechado",
+  concluido: "Concluído",
+  fechado: "Concluído",
 };
 
 export default function Chamados() {
@@ -32,6 +33,7 @@ export default function Chamados() {
     descricao: "",
     prioridade: "media",
     tecnicoId: "",
+    setor: "",
     status: "aberto",
   });
   const [editandoId, setEditandoId] = useState(null);
@@ -132,6 +134,7 @@ export default function Chamados() {
       descricao: form.descricao,
       prioridade: podeDefinirPrioridade ? form.prioridade : "media",
       tecnicoId: form.tecnicoId || undefined,
+      setor: form.setor || undefined,
     };
 
     if (editandoId) {
@@ -148,7 +151,13 @@ export default function Chamados() {
       return;
     }
 
-    setForm({ titulo: "", descricao: "", prioridade: "media", tecnicoId: "" });
+    setForm({
+      titulo: "",
+      descricao: "",
+      prioridade: "media",
+      tecnicoId: "",
+      setor: "",
+    });
     setEditandoId(null);
     carregarChamados(pagina);
   }
@@ -161,6 +170,7 @@ export default function Chamados() {
       prioridade: chamado.prioridade,
       status: chamado.status,
       tecnicoId: chamado.tecnico?.id || "",
+      setor: chamado.setor || "",
     });
   }
 
@@ -182,6 +192,17 @@ export default function Chamados() {
       carregarChamados(pagina);
     } catch (error) {
       setErro(error.message || "Erro ao assumir chamado");
+    }
+  }
+
+  async function concluirChamado(id) {
+    if (!window.confirm("Deseja concluir este chamado?")) return;
+    setErro(null);
+    try {
+      await atualizarChamado(id, { status: "concluido" });
+      carregarChamados(pagina);
+    } catch (error) {
+      setErro(error.message || "Erro ao concluir chamado");
     }
   }
 
@@ -224,6 +245,14 @@ export default function Chamados() {
             value={form.descricao}
             onChange={handleChange}
             required
+          />
+
+          <Input
+            label="Setor"
+            name="setor"
+            placeholder="Ex.: Financeiro, RH, Comercial"
+            value={form.setor}
+            onChange={handleChange}
           />
 
           {podeDefinirPrioridade ? (
@@ -269,7 +298,7 @@ export default function Chamados() {
             >
               <option value="aberto">Aberto</option>
               <option value="em_andamento">Em andamento</option>
-              <option value="fechado">Fechado</option>
+              <option value="concluido">Concluído</option>
             </Select>
           )}
 
@@ -319,6 +348,9 @@ export default function Chamados() {
 
               {chamados.map((c) => {
                 const temAcoes = isTi || isAdmin;
+                const podeConcluir =
+                  (isTi || isAdmin) &&
+                  !["concluido", "fechado"].includes(c.status);
                 const primeiroItemRef = (node) => {
                   if (node) menuItemRefs.current[c.id] = node;
                 };
@@ -333,15 +365,15 @@ export default function Chamados() {
                   <td data-label="Título">{c.titulo}</td>
                   <td data-label="Solicitante">
                     {c.solicitante?.nome || "—"}
+                    {c.setor && (
+                      <div className="secondary-text">Setor: {c.setor}</div>
+                    )}
                     {c.solicitante?.tipo && (
                       <div className="secondary-text">{c.solicitante.tipo}</div>
                     )}
                   </td>
                   <td data-label="Técnico">
                     {c.tecnico?.nome || "—"}
-                    {c.tecnico?.email && (
-                      <div className="secondary-text">{c.tecnico.email}</div>
-                    )}
                   </td>
                   <td data-label="Prioridade">{c.prioridade}</td>
                   <td data-label="Ações" className="cell-actions">
@@ -400,6 +432,19 @@ export default function Chamados() {
                                 Editar
                               </button>
                             )}
+                            {podeConcluir && (
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                  fecharMenu();
+                                  concluirChamado(c.id);
+                                }}
+                                ref={!isTi ? primeiroItemRef : null}
+                              >
+                                Concluir
+                              </button>
+                            )}
                             {isAdmin && (
                               <button
                                 type="button"
@@ -408,7 +453,7 @@ export default function Chamados() {
                                   fecharMenu();
                                   remover(c.id);
                                 }}
-                                ref={!isTi ? primeiroItemRef : null}
+                                ref={!isTi && !podeConcluir ? primeiroItemRef : null}
                               >
                                 Excluir
                               </button>

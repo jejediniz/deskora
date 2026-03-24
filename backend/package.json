@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "deskora-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Deskora backend",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contextos/authContext";
 import { useChamados } from "../contextos/chamadosContext";
-import { Button, Card, Select, Textarea } from "../components/ui";
+import { Button, Card, Input, Select, Textarea } from "../components/ui";
 
 const DEMANDAS_PADRAO = [
   "Computador não liga",
@@ -21,6 +21,7 @@ export default function ChamadoRapido() {
     titulo: "",
     descricao: "",
     prioridade: "media",
+    setor: "",
   });
   const [erro, setErro] = useState(null);
   const [sucesso, setSucesso] = useState(null);
@@ -46,9 +47,10 @@ export default function ChamadoRapido() {
         titulo: form.titulo,
         descricao: form.descricao,
         prioridade: isTi ? form.prioridade : "media",
+        setor: form.setor || undefined,
       });
 
-      setForm({ titulo: "", descricao: "", prioridade: "media" });
+      setForm({ titulo: "", descricao: "", prioridade: "media", setor: "" });
       setSucesso("Chamado aberto com sucesso!");
     } catch (error) {
       setErro(error.message || "Erro ao abrir chamado");
@@ -88,6 +90,14 @@ export default function ChamadoRapido() {
             value={form.descricao}
             onChange={handleChange}
             placeholder="Descreva o que está acontecendo com o máximo de detalhes"
+          />
+
+          <Input
+            label="Setor"
+            name="setor"
+            value={form.setor}
+            onChange={handleChange}
+            placeholder="Ex.: Financeiro, RH, Comercial"
           />
 
           {isTi && (

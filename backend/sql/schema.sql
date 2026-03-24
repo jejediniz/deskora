@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS chamados (
   descricao TEXT NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'aberto',
   prioridade VARCHAR(20) NOT NULL DEFAULT 'media',
+  setor VARCHAR(120),
   usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
   tecnico_id INTEGER REFERENCES usuarios(id),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),

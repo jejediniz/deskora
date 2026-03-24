@@ -6,7 +6,8 @@ import { Button, Input } from "../components/ui";
 const STATUS_LABEL = {
   aberto: "Aberto",
   em_andamento: "Em andamento",
-  fechado: "Fechado",
+  concluido: "Concluído",
+  fechado: "Concluído",
 };
 
 const PRIORIDADE_LABEL = {
@@ -19,7 +20,7 @@ const STATUS_FILTERS = [
   { label: "Todos", value: "todos" },
   { label: "Abertos", value: "aberto" },
   { label: "Em andamento", value: "em_andamento" },
-  { label: "Fechados", value: "fechado" },
+  { label: "Concluídos", value: "concluido" },
 ];
 
 const formatDate = (value) =>
@@ -57,7 +58,10 @@ export default function ChamadosCliente() {
     const termos = filtroTexto.trim().toLowerCase();
     return chamadosPorPerfil.filter((c) => {
       const matchesStatus =
-        statusFiltro === "todos" || c.status === statusFiltro;
+        statusFiltro === "todos" ||
+        (statusFiltro === "concluido"
+          ? ["concluido", "fechado"].includes(c.status)
+          : c.status === statusFiltro);
 
       const matchesTexto =
         !termos ||
