@@ -126,6 +126,7 @@ module.exports = {
   buscarPorIdQualquer,
   atualizar: ChamadoModel.atualizar,
   atualizarQualquer: ChamadoModel.atualizarQualquer,
+  tocarAtualizacao: ChamadoModel.tocarAtualizacao,
   deletar: ChamadoModel.deletar,
   deletarQualquer: ChamadoModel.deletarQualquer,
   listWithFilters

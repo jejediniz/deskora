@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contextos/authContext";
+import { useToast } from "../contextos/toastContext";
 import { Button, Input, Card } from "../components/ui";
 
 export default function Login() {
   const { login, estaAutenticado, carregando, erro } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -23,7 +25,11 @@ export default function Login() {
     }
 
     setErroLocal(null);
-    await login(email, senha);
+    const sucesso = await login(email, senha);
+
+    if (sucesso) {
+      toast.success("Login realizado com sucesso.");
+    }
   }
 
   useEffect(() => {
@@ -45,11 +51,11 @@ export default function Login() {
       {/* CABEÇALHO DO LOGIN (SEM BOTÕES) */}
       <header className="login-header">
         <img
-          src="/img/logo.png"
+          src="/img/logo%20em%20branco.png"
           alt="Deskora"
           className="brand-logo brand-logo--login"
         />
-        <p>Bem-vindo novamente! Entre para acompanhar e resolver demandas.</p>
+        <p>Entre para acessar a central de chamados.</p>
       </header>
 
       <div className="login-layout">

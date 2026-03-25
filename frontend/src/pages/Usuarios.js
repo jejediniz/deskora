@@ -1,13 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useConfirm } from "../contextos/confirmContext";
+import { useToast } from "../contextos/toastContext";
 import { listarUsuarios, criarUsuario, excluirUsuario } from "../services/usuariosApi";
-import { Button, Input, Select } from "../components/ui";
+import { Button, EmptyState, Input, PageHeader, Select } from "../components/ui";
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState(null);
   const [sucesso, setSucesso] = useState(null);
+  const [busca, setBusca] = useState("");
+  const [tipoFiltro, setTipoFiltro] = useState("todos");
+  const [statusFiltro, setStatusFiltro] = useState("todos");
   const [menuAbertoId, setMenuAbertoId] = useState(null);
+  const { confirm } = useConfirm();
+  const toast = useToast();
   const menuRef = useRef(null);
   const menuButtonRefs = useRef({});
   const menuItemRefs = useRef({});
@@ -107,21 +114,30 @@ export default function Usuarios() {
       });
       setSucesso("Usuário criado com sucesso");
       carregarUsuarios();
+      toast.success("Usuário criado com sucesso.");
     } catch (error) {
       setErro(error.message || "Erro ao criar usuário");
+      toast.error(error.message || "Erro ao criar usuário.");
     }
   }
 
   async function handleExcluir(id) {
-    if (!window.confirm("Deseja excluir este usuário?")) return;
+    const confirmado = await confirm({
+      title: "Excluir usuário",
+      description: "Essa ação remove o usuário do sistema. Deseja continuar?",
+      confirmLabel: "Excluir",
+    });
+    if (!confirmado) return;
     setErro(null);
     setSucesso(null);
     try {
       await excluirUsuario(id);
       setSucesso("Usuário excluído com sucesso");
       carregarUsuarios();
+      toast.success("Usuário excluído com sucesso.");
     } catch (error) {
       setErro(error.message || "Erro ao excluir usuário");
+      toast.error(error.message || "Erro ao excluir usuário.");
     }
   }
 
@@ -129,12 +145,37 @@ export default function Usuarios() {
     setMenuAbertoId((atual) => (atual === id ? null : id));
   }
 
+  const usuariosFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+
+    return usuarios.filter((usuario) => {
+      const correspondeBusca =
+        !termo ||
+        [usuario.nome, usuario.email, usuario.tipo]
+          .filter(Boolean)
+          .some((valor) => valor.toLowerCase().includes(termo));
+
+      const correspondeTipo =
+        tipoFiltro === "todos" || usuario.tipo === tipoFiltro;
+
+      const correspondeStatus =
+        statusFiltro === "todos" ||
+        (statusFiltro === "ativos" ? usuario.ativo : !usuario.ativo);
+
+      return correspondeBusca && correspondeTipo && correspondeStatus;
+    });
+  }, [busca, statusFiltro, tipoFiltro, usuarios]);
+
+  const usuariosAdmin = usuarios.filter((usuario) => usuario.admin).length;
+  const usuariosTi = usuarios.filter((usuario) => usuario.tipo === "ti").length;
+  const usuariosAtivos = usuarios.filter((usuario) => usuario.ativo).length;
+
   return (
     <div>
-      <div className="page-header">
-        <h2>Usuários</h2>
-        <p className="page-subtitle">Cadastro e controle de acesso</p>
-      </div>
+      <PageHeader
+        title="Usuários"
+        subtitle="Cadastro e controle de acesso."
+      />
 
       <div className="chamados-layout">
         <form onSubmit={handleSubmit} className="form-card">
@@ -203,9 +244,74 @@ export default function Usuarios() {
 
         <div className="table-card">
           <div className="table-header">
-            <strong>Usuários cadastrados</strong>
+            <div>
+              <strong>Equipe cadastrada</strong>
+              <p className="table-header__subtitle">
+                Gerencie acesso, perfis e disponibilidade dos usuários do sistema.
+              </p>
+            </div>
           </div>
-          <table className="chamados-table">
+
+          <div className="table-actions">
+            <div className="table-search-row table-search-row--users">
+              <Input
+                label="Buscar usuários"
+                hideLabel
+                className="table-search"
+                placeholder="Buscar por nome, email ou perfil"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+              />
+
+              <Select
+                label="Tipo"
+                hideLabel
+                className="table-filter table-filter--compact"
+                value={tipoFiltro}
+                onChange={(e) => setTipoFiltro(e.target.value)}
+              >
+                <option value="todos">Todos os perfis</option>
+                <option value="comum">Comum</option>
+                <option value="ti">TI</option>
+              </Select>
+
+              <Select
+                label="Status"
+                hideLabel
+                className="table-filter table-filter--compact"
+                value={statusFiltro}
+                onChange={(e) => setStatusFiltro(e.target.value)}
+              >
+                <option value="todos">Todos os status</option>
+                <option value="ativos">Ativos</option>
+                <option value="inativos">Inativos</option>
+              </Select>
+            </div>
+          </div>
+
+          <div className="table-toolbar">
+            <div className="table-toolbar__summary">
+              <strong>{usuariosFiltrados.length}</strong>
+              <span>de {usuarios.length} usuário{usuarios.length === 1 ? "" : "s"}</span>
+            </div>
+
+            <div className="table-toolbar__stats">
+              <span className="mini-stat">
+                <strong>{usuariosAtivos}</strong>
+                <span>ativos</span>
+              </span>
+              <span className="mini-stat">
+                <strong>{usuariosTi}</strong>
+                <span>TI</span>
+              </span>
+              <span className="mini-stat">
+                <strong>{usuariosAdmin}</strong>
+                <span>admins</span>
+              </span>
+            </div>
+          </div>
+
+          <table className="chamados-table usuarios-table">
             <thead>
               <tr>
                 <th>Nome</th>
@@ -222,23 +328,43 @@ export default function Usuarios() {
                   <td colSpan="6">Carregando...</td>
                 </tr>
               )}
-              {!carregando && usuarios.length === 0 && (
+              {!carregando && usuariosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan="6">Nenhum usuário encontrado.</td>
+                  <td colSpan="6">
+                    <EmptyState
+                      title="Nenhum usuário encontrado"
+                      description="Tente ajustar a busca ou os filtros para localizar alguém da equipe."
+                    />
+                  </td>
                 </tr>
               )}
-              {usuarios.map((u) => {
+              {usuariosFiltrados.map((u) => {
                 const primeiroItemRef = (node) => {
                   if (node) menuItemRefs.current[u.id] = node;
                 };
 
                 return (
                   <tr key={u.id}>
-                    <td data-label="Nome">{u.nome}</td>
+                    <td data-label="Nome">
+                      <strong className="cell-title">{u.nome}</strong>
+                      {u.admin && <div className="secondary-text">Administrador</div>}
+                    </td>
                     <td data-label="Email">{u.email}</td>
-                    <td data-label="Tipo">{u.tipo}</td>
-                    <td data-label="Admin">{u.admin ? "Sim" : "Não"}</td>
-                    <td data-label="Ativo">{u.ativo ? "Sim" : "Não"}</td>
+                    <td data-label="Tipo">
+                      <span className={`role-badge role-badge--${u.tipo}`}>
+                        {u.tipo === "ti" ? "TI" : "Comum"}
+                      </span>
+                    </td>
+                    <td data-label="Admin">
+                      <span className={`role-badge ${u.admin ? "role-badge--admin" : "role-badge--neutral"}`}>
+                        {u.admin ? "Sim" : "Não"}
+                      </span>
+                    </td>
+                    <td data-label="Ativo">
+                      <span className={`role-badge ${u.ativo ? "role-badge--active" : "role-badge--inactive"}`}>
+                        {u.ativo ? "Ativo" : "Inativo"}
+                      </span>
+                    </td>
                     <td data-label="Ações" className="cell-actions">
                       <div
                         className="acoes-menu"

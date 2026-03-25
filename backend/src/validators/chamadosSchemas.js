@@ -25,8 +25,14 @@ const listChamadosQuerySchema = Joi.object({
   usuarioId: Joi.number().integer().min(1).optional()
 })
 
+const createChamadoInteracaoSchema = Joi.object({
+  mensagem: Joi.string().trim().min(1).max(4000).required(),
+  tipo: Joi.string().valid('publica', 'interna').default('publica')
+})
+
 module.exports = {
   createChamadoSchema,
   updateChamadoSchema,
-  listChamadosQuerySchema
+  listChamadosQuerySchema,
+  createChamadoInteracaoSchema
 }

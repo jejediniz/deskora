@@ -1,4 +1,5 @@
 const chamadosService = require('../services/chamadosService')
+const chamadoInteracoesService = require('../services/chamadoInteracoesService')
 const asyncHandler = require('../utils/asyncHandler')
 const AppError = require('../utils/AppError')
 const { sendSuccess, sendCreated, sendNoContent } = require('../utils/response')
@@ -29,6 +30,16 @@ exports.findById = asyncHandler(async (req, res) => {
   }
 
   return sendSuccess(res, chamado, 'Chamado encontrado')
+})
+
+exports.listInteractions = asyncHandler(async (req, res) => {
+  const interacoes = await chamadoInteracoesService.list(req.params.id, req.user)
+  return sendSuccess(res, interacoes, 'Interações listadas com sucesso')
+})
+
+exports.createInteraction = asyncHandler(async (req, res) => {
+  const interacao = await chamadoInteracoesService.create(req.params.id, req.body, req.user)
+  return sendCreated(res, interacao, 'Interação criada com sucesso')
 })
 
 exports.update = asyncHandler(async (req, res) => {

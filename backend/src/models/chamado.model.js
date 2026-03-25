@@ -106,6 +106,16 @@ const ChamadoModel = {
     ])
   },
 
+  tocarAtualizacao: (id) => {
+    const query = `
+      UPDATE chamados
+      SET updated_at = NOW()
+      WHERE id = $1
+      RETURNING id;
+    `
+    return pool.query(query, [id])
+  },
+
   deletar: (id, usuarioId) => {
     const query = `
       DELETE FROM chamados
