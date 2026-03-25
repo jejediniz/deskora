@@ -3,16 +3,22 @@ import AppRoutes from "./router/routes";
 
 import { AuthProvider } from "./contextos/authContext";
 import { ChamadosProvider } from "./contextos/chamadosContext";
+import { ToastProvider } from "./contextos/toastContext";
+import { ConfirmProvider } from "./contextos/confirmContext";
 
 function App() {
   return (
-    <AuthProvider>
-      <ChamadosProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </ChamadosProvider>
-    </AuthProvider>
+    <ToastProvider>
+      <ConfirmProvider>
+        <AuthProvider>
+          <ChamadosProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ChamadosProvider>
+        </AuthProvider>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }
 

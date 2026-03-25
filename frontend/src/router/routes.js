@@ -7,6 +7,7 @@ import ChamadosCliente from "../pages/ChamadosCliente";
 import Login from "../pages/Login";
 import PaginaBase from "../pages/PaginaBase";
 import Usuarios from "../pages/Usuarios";
+import NaoEncontrada from "../pages/NaoEncontrada";
 
 import RotaPrivada from "./RotaPrivada";
 import RotaAdmin from "./RotaAdmin";
@@ -30,8 +31,11 @@ export default function AppRoutes() {
           <Route element={<RotaAdmin />}>
             <Route path="usuarios" element={<Usuarios />} />
           </Route>
+          <Route path="*" element={<NaoEncontrada />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<NaoEncontrada />} />
     </Routes>
   );
 }

@@ -18,16 +18,16 @@ export default function Cabecalho() {
       <div className="app-header__inner">
         <div className="app-header__title">
           <img
-            src="/img/logo.png"
+            src="/img/logo%20em%20branco.png"
             alt="Deskora"
             className="brand-logo brand-logo--header"
           />
           <p className="app-header__subtitle">
-            Gerencie solicitações, acompanhe o time e mantenha a TI agil.
+            Central de chamados para operação diária.
           </p>
         </div>
 
-        <nav className="top-nav">
+        <nav className="top-nav" aria-label="Navegação principal">
           <NavLink to="/" className={linkClass}>
             Dashboard
           </NavLink>
@@ -38,7 +38,12 @@ export default function Cabecalho() {
             </NavLink>
           )}
 
-          <NavLink to="/abrir-chamado" className={linkClass}>
+          <NavLink
+            to="/abrir-chamado"
+            className={({ isActive }) =>
+              `nav-btn nav-btn--primary${isActive ? " active" : ""}`
+            }
+          >
             Abrir Chamado
           </NavLink>
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contextos/authContext";
 import { useChamados } from "../contextos/chamadosContext";
+import { useToast } from "../contextos/toastContext";
 import { Button, Card, Input, Select, Textarea } from "../components/ui";
 
 const DEMANDAS_PADRAO = [
@@ -16,6 +17,7 @@ export default function ChamadoRapido() {
   const { usuario } = useAuth();
   const isTi = usuario?.tipo === "ti";
   const { criarChamado } = useChamados();
+  const toast = useToast();
 
   const [form, setForm] = useState({
     titulo: "",
@@ -52,8 +54,10 @@ export default function ChamadoRapido() {
 
       setForm({ titulo: "", descricao: "", prioridade: "media", setor: "" });
       setSucesso("Chamado aberto com sucesso!");
+      toast.success("Chamado enviado para a fila com sucesso.");
     } catch (error) {
       setErro(error.message || "Erro ao abrir chamado");
+      toast.error(error.message || "Erro ao abrir chamado.");
     } finally {
       setCarregando(false);
     }
@@ -69,20 +73,21 @@ export default function ChamadoRapido() {
         {sucesso && <div className="alert alert-success">{sucesso}</div>}
 
         <form onSubmit={handleSubmit} className="open-form">
-          <Select
-            label="Selecione um problema"
+          <Input
+            label="Problema ou assunto"
             name="titulo"
             value={form.titulo}
             onChange={handleChange}
-            helperText="Use um dos casos prontos ou insira a dúvida manualmente"
-          >
-            <option value="">Selecione</option>
-            {DEMANDAS_PADRAO.map((d, i) => (
-              <option key={i} value={d}>
-                {d}
-              </option>
+            list="demandas-padrao"
+            placeholder="Ex.: Impressora não funciona"
+            helperText="Digite livremente ou escolha uma sugestão comum"
+            required
+          />
+          <datalist id="demandas-padrao">
+            {DEMANDAS_PADRAO.map((demanda) => (
+              <option key={demanda} value={demanda} />
             ))}
-          </Select>
+          </datalist>
 
           <Textarea
             label="Descrição"
@@ -90,6 +95,7 @@ export default function ChamadoRapido() {
             value={form.descricao}
             onChange={handleChange}
             placeholder="Descreva o que está acontecendo com o máximo de detalhes"
+            required
           />
 
           <Input

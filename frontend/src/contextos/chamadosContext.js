@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./authContext";
 import {
   listarChamados,
@@ -16,7 +16,7 @@ export function ChamadosProvider({ children }) {
   const [chamadoEmEdicao, setChamadoEmEdicao] = useState(null);
   const [erro, setErro] = useState(null);
 
-  async function carregarChamados() {
+  const carregarChamados = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     try {
@@ -27,50 +27,61 @@ export function ChamadosProvider({ children }) {
     } finally {
       setCarregando(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     if (usuario) {
       carregarChamados();
     } else {
       setChamados([]);
+      setErro(null);
     }
-  }, [usuario]);
+  }, [carregarChamados, usuario]);
 
-  async function criarChamadoContext(dados) {
+  const criarChamadoContext = useCallback(async (dados) => {
     setErro(null);
     await criarChamado(dados);
-    carregarChamados();
-  }
+    await carregarChamados();
+  }, [carregarChamados]);
 
-  async function atualizarChamadoContext(id, dados) {
+  const atualizarChamadoContext = useCallback(async (id, dados) => {
     setErro(null);
     await atualizarChamado(id, dados);
-    carregarChamados();
-  }
+    await carregarChamados();
+  }, [carregarChamados]);
 
-  async function excluirChamadoContext(id) {
+  const excluirChamadoContext = useCallback(async (id) => {
     setErro(null);
     await excluirChamado(id);
-    carregarChamados();
-  }
+    await carregarChamados();
+  }, [carregarChamados]);
+
+  const value = useMemo(
+    () => ({
+      chamados,
+      carregando,
+      erro,
+      chamadoEmEdicao,
+      setChamadoEmEdicao,
+      criarChamado: criarChamadoContext,
+      atualizarChamado: atualizarChamadoContext,
+      excluirChamado: excluirChamadoContext,
+      recarregar: carregarChamados,
+    }),
+    [
+      atualizarChamadoContext,
+      chamadoEmEdicao,
+      chamados,
+      carregando,
+      criarChamadoContext,
+      erro,
+      excluirChamadoContext,
+      carregarChamados,
+    ]
+  );
 
   return (
-    <ChamadosContext.Provider
-      value={{
-        chamados,
-        carregando,
-        erro,
-        chamadoEmEdicao,
-        setChamadoEmEdicao,
-        criarChamado: criarChamadoContext,
-        atualizarChamado: atualizarChamadoContext,
-        excluirChamado: excluirChamadoContext,
-        recarregar: carregarChamados,
-      }}
-    >
-      {children}
-    </ChamadosContext.Provider>
+    <ChamadosContext.Provider value={value}>{children}</ChamadosContext.Provider>
   );
 }
 

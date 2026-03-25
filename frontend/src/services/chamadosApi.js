@@ -49,3 +49,17 @@ export async function excluirChamado(id) {
   await api.delete(`/chamados/${id}`);
   return true;
 }
+
+export async function listarInteracoesChamado(id) {
+  const response = await api.get(`/chamados/${id}/interacoes`);
+  return response.data.data;
+}
+
+export async function criarInteracaoChamado(id, dados) {
+  const response = await api.post(`/chamados/${id}/interacoes`, {
+    mensagem: dados.mensagem,
+    tipo: dados.tipo || "publica",
+  });
+
+  return response.data.data;
+}
