@@ -4,6 +4,7 @@ const cors = require('cors')
 const authRoutes = require('./routes/authRoutes')
 const userRoutes = require('./routes/userRoutes')
 const chamadosRoutes = require('./routes/chamados.routes')
+const { spec, renderDocsHtml } = require('./docs/openapi')
 const errorHandler = require('./middlewares/errorHandler')
 const notFound = require('./middlewares/notFound')
 const { getEnv } = require('./config/env')
@@ -24,6 +25,14 @@ app.use(express.json({ limit: '1mb' }))
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' })
+})
+
+app.get('/docs/openapi.json', (req, res) => {
+  res.status(200).json(spec)
+})
+
+app.get('/docs', (req, res) => {
+  res.status(200).send(renderDocsHtml('/docs/openapi.json'))
 })
 
 // Rotas
