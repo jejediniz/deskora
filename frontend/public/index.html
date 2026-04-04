@@ -9,6 +9,16 @@
       content="Deskora centraliza abertura, acompanhamento e gestão de chamados de TI."
     />
     <meta name="theme-color" content="#1d4ed8" />
+    <script>
+      (function () {
+        try {
+          var k = "@deskora:theme";
+          if (localStorage.getItem(k) === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

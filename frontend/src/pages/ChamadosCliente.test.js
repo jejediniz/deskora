@@ -1,6 +1,8 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import ChamadosCliente from "./ChamadosCliente";
+import { ThemeProvider } from "../contextos/themeContext";
+import { ToastProvider } from "../contextos/toastContext";
 
 jest.mock("../contextos/authContext", () => ({
   useAuth: () => ({
@@ -43,7 +45,13 @@ jest.mock("../contextos/chamadosContext", () => ({
 
 describe("ChamadosCliente", () => {
   it("filtra chamados por texto e status", () => {
-    render(<ChamadosCliente />);
+    render(
+      <ThemeProvider>
+        <ToastProvider>
+          <ChamadosCliente />
+        </ToastProvider>
+      </ThemeProvider>
+    );
 
     expect(screen.getByText("Impressora sem conexão")).toBeInTheDocument();
     expect(screen.getByText("VPN configurada")).toBeInTheDocument();

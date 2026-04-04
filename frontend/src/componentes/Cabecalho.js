@@ -1,6 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../contextos/authContext";
 import { Button } from "../components/ui";
+import AlternarTema from "./AlternarTema";
 
 export default function Cabecalho() {
   const { estaAutenticado, logout, usuario } = useAuth();
@@ -16,19 +17,19 @@ export default function Cabecalho() {
   return (
     <header className="app-header">
       <div className="app-header__inner">
-        <div className="app-header__title">
+        <Link to="/" className="app-header__brand">
           <img
             src="/img/logo%20em%20branco.png"
             alt="Deskora"
             className="brand-logo brand-logo--header"
           />
-          <p className="app-header__subtitle">
+          <span className="app-header__tagline">
             Central de chamados para operação diária.
-          </p>
-        </div>
+          </span>
+        </Link>
 
         <nav className="top-nav" aria-label="Navegação principal">
-          <NavLink to="/" className={linkClass}>
+          <NavLink to="/" className={linkClass} end>
             Dashboard
           </NavLink>
 
@@ -56,10 +57,19 @@ export default function Cabecalho() {
               Usuários
             </NavLink>
           )}
+        </nav>
+
+        <div className="app-header__actions">
+          <div className="theme-switch-field">
+            <span className="theme-switch-field__label" aria-hidden>
+              Escuro
+            </span>
+            <AlternarTema className="theme-switch--header" />
+          </div>
           <Button variant="ghost" className="nav-btn logout" onClick={logout}>
             Sair
           </Button>
-        </nav>
+        </div>
       </div>
     </header>
   );

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contextos/authContext";
 import { useToast } from "../contextos/toastContext";
 import { Button, Input, Card } from "../components/ui";
+import AlternarTema from "../componentes/AlternarTema";
 
 export default function Login() {
   const { login, estaAutenticado, carregando, erro } = useAuth();
@@ -50,12 +51,22 @@ export default function Login() {
     <>
       {/* CABEÇALHO DO LOGIN (SEM BOTÕES) */}
       <header className="login-header">
-        <img
-          src="/img/logo%20em%20branco.png"
-          alt="Deskora"
-          className="brand-logo brand-logo--login"
-        />
-        <p>Entre para acessar a central de chamados.</p>
+        <div className="login-header__row">
+          <div className="login-header__brand">
+            <img
+              src="/img/logo%20em%20branco.png"
+              alt="Deskora"
+              className="brand-logo brand-logo--login"
+            />
+            <p>Entre para acessar a central de chamados.</p>
+          </div>
+          <div className="login-header__tools">
+            <span className="theme-switch-field__label" aria-hidden>
+              Escuro
+            </span>
+            <AlternarTema className="theme-switch--login" />
+          </div>
+        </div>
       </header>
 
       <div className="login-layout">

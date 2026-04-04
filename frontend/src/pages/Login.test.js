@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import Login from "./Login";
+import { ThemeProvider } from "../contextos/themeContext";
 
 const mockNavigate = jest.fn();
 const mockLogin = jest.fn();
@@ -26,6 +27,14 @@ jest.mock("../contextos/toastContext", () => ({
   }),
 }));
 
+function renderLogin() {
+  return render(
+    <ThemeProvider>
+      <Login />
+    </ThemeProvider>
+  );
+}
+
 describe("Login", () => {
   beforeEach(() => {
     mockLogin.mockReset();
@@ -34,7 +43,7 @@ describe("Login", () => {
   });
 
   it("exibe validação ao enviar formulário vazio", async () => {
-    render(<Login />);
+    renderLogin();
 
     fireEvent.click(screen.getByRole("button", { name: /entrar/i }));
 
@@ -46,7 +55,7 @@ describe("Login", () => {
   it("dispara login e toast de sucesso", async () => {
     mockLogin.mockResolvedValue(true);
 
-    render(<Login />);
+    renderLogin();
 
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: "admin@deskora.com" },
