@@ -4,7 +4,7 @@ export default function Rodape() {
       <div className="app-footer__inner">
         <img
           src="/img/logo.png"
-          alt="Deskora"
+          alt="OperaDesk"
           className="brand-logo brand-logo--footer"
         />
         <p className="app-footer__text">

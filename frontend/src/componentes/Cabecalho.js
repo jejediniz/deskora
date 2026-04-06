@@ -20,7 +20,7 @@ export default function Cabecalho() {
         <Link to="/" className="app-header__brand">
           <img
             src="/img/logo%20em%20branco.png"
-            alt="Deskora"
+            alt="OperaDesk"
             className="brand-logo brand-logo--header"
           />
           <span className="app-header__tagline">

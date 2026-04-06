@@ -1,9 +1,9 @@
 const spec = {
   openapi: '3.0.3',
   info: {
-    title: 'Deskora API',
+    title: 'OperaDesk API',
     version: '1.0.0',
-    description: 'Documentação base da API de autenticação, usuários e chamados do Deskora.'
+    description: 'Documentação base da API de autenticação, usuários e chamados do OperaDesk.'
   },
   servers: [{ url: '/' }],
   paths: {
@@ -232,7 +232,7 @@ function renderDocsHtml(jsonUrl) {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>Deskora API Docs</title>
+      <title>OperaDesk API Docs</title>
       <style>
         body { font-family: Arial, sans-serif; margin: 0; background: #f8fafc; color: #111827; }
         main { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
@@ -244,7 +244,7 @@ function renderDocsHtml(jsonUrl) {
     </head>
     <body>
       <main>
-        <h1>Deskora API</h1>
+        <h1>OperaDesk API</h1>
         <p>Documentação OpenAPI simplificada. Para integração automática, use o arquivo JSON abaixo.</p>
         <p><a href="${jsonUrl}">${jsonUrl}</a></p>
         <pre id="spec">Carregando especificação...</pre>

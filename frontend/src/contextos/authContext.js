@@ -3,7 +3,7 @@ import api, { setUnauthorizedHandler } from "../services/api";
 
 const AuthContext = createContext(null);
 
-const STORAGE_KEY = "@deskora:auth";
+const STORAGE_KEY = "@operadesk:auth";
 const TOKEN_KEY = "token";
 
 export function AuthProvider({ children }) {

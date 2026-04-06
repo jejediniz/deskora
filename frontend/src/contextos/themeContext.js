@@ -9,7 +9,7 @@ import {
 
 const ThemeContext = createContext(null);
 
-export const THEME_STORAGE_KEY = "@deskora:theme";
+export const THEME_STORAGE_KEY = "@operadesk:theme";
 
 function readStoredTheme() {
   try {

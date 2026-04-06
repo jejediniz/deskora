@@ -58,13 +58,13 @@ describe("Login", () => {
     renderLogin();
 
     fireEvent.change(screen.getByLabelText(/email/i), {
-      target: { value: "admin@deskora.com" },
+      target: { value: "admin@operadesk.com" },
     });
     fireEvent.change(screen.getByLabelText(/senha/i), {
       target: { value: "123456" },
     });
     fireEvent.click(screen.getByRole("button", { name: /entrar/i }));
 
-    expect(mockLogin).toHaveBeenCalledWith("admin@deskora.com", "123456");
+    expect(mockLogin).toHaveBeenCalledWith("admin@operadesk.com", "123456");
   });
 });

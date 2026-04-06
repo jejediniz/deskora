@@ -55,7 +55,7 @@ export default function Login() {
           <div className="login-header__brand">
             <img
               src="/img/logo%20em%20branco.png"
-              alt="Deskora"
+              alt="OperaDesk"
               className="brand-logo brand-logo--login"
             />
             <p>Entre para acessar a central de chamados.</p>
