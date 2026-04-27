@@ -4,6 +4,8 @@ const AppError = require('../utils/AppError')
 const userRepository = require('../repositories/userRepository')
 const { getEnv } = require('../config/env')
 
+const INVALID_CREDENTIALS_MESSAGE = 'Credenciais inválidas'
+
 function assinarToken(usuario) {
   const { jwtSecret, jwtExpiresIn } = getEnv()
 
@@ -29,6 +31,11 @@ function publicUser(usuario) {
   }
 }
 
+async function hashSenha(senha) {
+  const { bcryptRounds } = getEnv()
+  return bcrypt.hash(senha, bcryptRounds)
+}
+
 async function registrar({ nome, email, senha, tipo, admin, ativo }) {
   const existente = await userRepository.findByEmail(email)
 
@@ -36,7 +43,7 @@ async function registrar({ nome, email, senha, tipo, admin, ativo }) {
     throw new AppError('Email já cadastrado', 409)
   }
 
-  const senha_hash = await bcrypt.hash(senha, 10)
+  const senha_hash = await hashSenha(senha)
 
   const usuario = await userRepository.create({
     nome,
@@ -56,18 +63,18 @@ async function registrar({ nome, email, senha, tipo, admin, ativo }) {
 async function login({ email, senha }) {
   const usuario = await userRepository.findByEmail(email)
 
-  if (!usuario) {
-    throw new AppError('Credenciais inválidas', 401)
-  }
-
-  if (!usuario.ativo) {
-    throw new AppError('Usuário inativo', 403)
+  if (!usuario || usuario.ativo === false) {
+    if (senha) {
+      // garante tempo constante de resposta para não vazar existência da conta
+      await bcrypt.compare(senha, '$2b$12$invalidinvalidinvalidinvalidinvalidinvalidinv.invalidinv')
+    }
+    throw new AppError(INVALID_CREDENTIALS_MESSAGE, 401)
   }
 
   const senhaValida = await bcrypt.compare(senha, usuario.senha_hash)
 
   if (!senhaValida) {
-    throw new AppError('Credenciais inválidas', 401)
+    throw new AppError(INVALID_CREDENTIALS_MESSAGE, 401)
   }
 
   return {
@@ -86,4 +93,10 @@ async function getSessaoAtual(userId) {
   return publicUser(usuario)
 }
 
-module.exports = { registrar, login, getSessaoAtual }
+module.exports = {
+  INVALID_CREDENTIALS_MESSAGE,
+  getSessaoAtual,
+  hashSenha,
+  login,
+  registrar
+}

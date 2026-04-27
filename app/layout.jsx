@@ -3,7 +3,7 @@ import Providers from "./providers";
 
 export const metadata = {
   title: "OperaDesk",
-  description: "Central de chamados OperaDesk"
+  description: "Gestão inteligente de chamados — OperaDesk"
 };
 
 export default function RootLayout({ children }) {

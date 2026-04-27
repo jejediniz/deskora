@@ -41,15 +41,18 @@ describe('authService.login', () => {
     expect(result.usuario.senha_hash).toBeUndefined()
   })
 
-  it('falha com 401 quando o usuário não existe', async () => {
+  it('falha com 401 e mensagem genérica quando o usuário não existe', async () => {
     vi.spyOn(userRepository, 'findByEmail').mockResolvedValue(null)
 
     await expect(
       authService.login({ email: 'x@y.com', senha: '123456' })
-    ).rejects.toMatchObject({ statusCode: 401 })
+    ).rejects.toMatchObject({
+      statusCode: 401,
+      message: authService.INVALID_CREDENTIALS_MESSAGE
+    })
   })
 
-  it('falha com 403 quando o usuário está inativo', async () => {
+  it('falha com 401 e mensagem genérica quando o usuário está inativo (sem leak)', async () => {
     vi.spyOn(userRepository, 'findByEmail').mockResolvedValue({
       id: 2,
       email: 'a@b.com',
@@ -59,7 +62,10 @@ describe('authService.login', () => {
 
     await expect(
       authService.login({ email: 'a@b.com', senha: '123456' })
-    ).rejects.toMatchObject({ statusCode: 403 })
+    ).rejects.toMatchObject({
+      statusCode: 401,
+      message: authService.INVALID_CREDENTIALS_MESSAGE
+    })
   })
 
   it('falha com 401 quando a senha está incorreta', async () => {

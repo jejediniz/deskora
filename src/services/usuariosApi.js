@@ -1,29 +1,28 @@
-import api from "./api";
+import http from "./http";
 
 export async function listarUsuarios() {
-  const response = await api.get("/users");
-  return response.data.data;
+  const response = await http.get("/users");
+  return response.data;
 }
 
 export async function criarUsuario(dados) {
-  const response = await api.post("/users", {
+  const response = await http.post("/users", {
     nome: dados.nome,
     email: dados.email,
     senha: dados.senha,
     tipo: dados.tipo,
     admin: dados.admin,
-    ativo: dados.ativo,
+    ativo: dados.ativo
   });
-
-  return response.data.data;
+  return response.data;
 }
 
 export async function listarTecnicos() {
-  const response = await api.get("/users/tecnicos");
-  return response.data.data;
+  const response = await http.get("/users/tecnicos");
+  return response.data;
 }
 
 export async function excluirUsuario(id) {
-  await api.delete(`/users/${id}`);
+  await http.delete(`/users/${id}`);
   return true;
 }

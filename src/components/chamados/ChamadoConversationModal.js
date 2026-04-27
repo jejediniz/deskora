@@ -45,7 +45,10 @@ export default function ChamadoConversationModal({
   const interacoesQuery = useInteracoesChamado(chamadoId);
   const criarInteracao = useCriarInteracaoMutation(chamadoId);
 
-  const interacoes = interacoesQuery.data ?? [];
+  const interacoes = useMemo(
+    () => interacoesQuery.data ?? [],
+    [interacoesQuery.data]
+  );
   const loading = interacoesQuery.isLoading;
   const saving = criarInteracao.isPending;
 

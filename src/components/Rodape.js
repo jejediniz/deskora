@@ -4,9 +4,12 @@ export default function Rodape() {
       <div className="app-footer__inner">
         <span className="app-footer__logo-scale">
           <img
-            src="/img/simbolo%20-%20fundo%20transparente.png"
+            src="/img/operadesk-symbol-transparent.png"
+            width={1360}
+            height={1024}
             alt="OperaDesk"
             className="brand-logo brand-logo--footer"
+            decoding="async"
           />
         </span>
         <p className="app-footer__text">

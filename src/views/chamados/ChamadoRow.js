@@ -1,4 +1,5 @@
 import { PRIORIDADE_LABEL, STATUS_LABEL } from "../../config/chamados";
+import { formatDateTime, formatRelative } from "../../utils/formatters";
 
 export default function ChamadoRow({
   chamado,
@@ -64,7 +65,15 @@ export default function ChamadoRow({
 
       <div className="management-row__title">
         <strong className="cell-title">{chamado.titulo}</strong>
-        <div className="secondary-text">ID #{chamado.id}</div>
+        <div className="secondary-text">
+          ID #{chamado.id}
+          {chamado.created_at && (
+            <span title={formatDateTime(chamado.created_at)}>
+              {" • aberto "}
+              {formatRelative(chamado.created_at)}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="management-row__tech">

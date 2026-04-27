@@ -1,8 +1,8 @@
 const authService = require('../../../../src/server/services/authService')
+const auditService = require('../../../../src/server/services/auditService')
 const { loginSchema } = require('../../../../src/server/validators/authSchemas')
 const rateLimit = require('../../../../src/server/utils/rateLimit')
 const AppError = require('../../../../src/server/utils/AppError')
-const logger = require('../../../../src/server/utils/logger')
 const {
   getClientIp,
   readBody,
@@ -13,7 +13,7 @@ const {
 } = require('../../../../src/server/nextApi')
 
 export async function POST(request) {
-  return run(async () => {
+  return run(async ({ requestId }) => {
     const ip = getClientIp(request)
     const body = validate(loginSchema, await readBody(request))
 
@@ -25,21 +25,43 @@ export async function POST(request) {
 
     if (!ipCheck.allowed || !emailCheck.allowed) {
       const retryMs = Math.max(ipCheck.retryAfterMs, emailCheck.retryAfterMs)
-      logger.audit('auth.login.rate_limited', { ip, email: body.email })
+      await auditService.record({
+        action: 'auth.login.rate_limited',
+        ip,
+        requestId,
+        metadata: { email: body.email }
+      })
       throw new AppError(
         `Muitas tentativas de login. Tente novamente em ${Math.ceil(retryMs / 1000)}s`,
         429
       )
     }
 
-    const { token, usuario } = await authService.login(body)
+    try {
+      const { token, usuario } = await authService.login(body)
 
-    rateLimit.reset(emailKey)
+      rateLimit.reset(emailKey)
 
-    logger.audit('auth.login.sucesso', { usuarioId: usuario.id, ip })
+      await auditService.record({
+        action: 'auth.login.sucesso',
+        actorId: usuario.id,
+        ip,
+        requestId,
+        targetType: 'usuario',
+        targetId: usuario.id
+      })
 
-    const response = success(usuario, 'Login realizado com sucesso')
-    setAuthCookie(response, token)
-    return response
+      const response = success(usuario, 'Login realizado com sucesso')
+      setAuthCookie(response, token)
+      return response
+    } catch (error) {
+      await auditService.record({
+        action: 'auth.login.falha',
+        ip,
+        requestId,
+        metadata: { email: body.email }
+      })
+      throw error
+    }
   })
 }

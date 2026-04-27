@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../contextos/authContext";
-import { useConfirm } from "../contextos/confirmContext";
-import { useToast } from "../contextos/toastContext";
 import {
-  useChamadosQuery,
   useAtualizarChamadoMutation,
+  useChamadosQuery,
   useExcluirChamadoMutation,
   useTecnicosQuery,
 } from "../hooks/useChamadosQueries";
-import { Button, EmptyState, PageHeader } from "../components/ui";
+import { Button, EmptyState, PageHeader, SkeletonRow } from "../components/ui";
+import { STATUS_FECHADOS } from "../config/chamados";
 import ChamadoConversationModal from "../components/chamados/ChamadoConversationModal";
 import ChamadosToolbar from "./chamados/ChamadosToolbar";
 import ChamadosSelectionBar from "./chamados/ChamadosSelectionBar";
 import ChamadoRow from "./chamados/ChamadoRow";
 import ChamadoEditModal from "./chamados/ChamadoEditModal";
 import { useChamadosMenuControl } from "./chamados/useChamadosMenuControl";
+import { useChamadoFiltros } from "./chamados/useChamadoFiltros";
+import { useChamadoAcoes } from "./chamados/useChamadoAcoes";
 
 const FORM_INICIAL = {
   titulo: "",
@@ -30,28 +31,52 @@ export default function Chamados() {
   const isAdmin = usuario?.admin === true;
   const isTi = usuario?.tipo === "ti";
   const podeDefinirPrioridade = isTi;
-  const { confirm } = useConfirm();
-  const toast = useToast();
 
-  const [pagina, setPagina] = useState(1);
-  const [limite, setLimite] = useState(10);
-  const [busca, setBusca] = useState("");
-  const [statusFiltro, setStatusFiltro] = useState("todos");
   const [selecionados, setSelecionados] = useState([]);
   const [form, setForm] = useState(FORM_INICIAL);
   const [editandoId, setEditandoId] = useState(null);
   const [chamadoConversa, setChamadoConversa] = useState(null);
   const [erro, setErro] = useState(null);
 
-  const chamadosQuery = useChamadosQuery({ page: pagina, limit: limite });
-  const tecnicosQuery = useTecnicosQuery();
+  const {
+    aplicarFiltros,
+    busca,
+    buscaDebounced,
+    filtrosAtivos,
+    irParaPagina,
+    limite,
+    limparFiltros,
+    pagina,
+    setBusca,
+    setLimite,
+    setStatusFiltro,
+    statusFiltro,
+  } = useChamadoFiltros();
+
   const atualizarMutation = useAtualizarChamadoMutation();
   const excluirMutation = useExcluirChamadoMutation();
+  const tecnicosQuery = useTecnicosQuery();
+  const chamadosQuery = useChamadosQuery({
+    page: pagina,
+    limit: limite,
+    q: buscaDebounced || undefined,
+  });
 
-  const chamados = chamadosQuery.data?.items ?? [];
+  const chamados = useMemo(
+    () => chamadosQuery.data?.items ?? [],
+    [chamadosQuery.data]
+  );
   const meta = chamadosQuery.data?.meta ?? null;
   const carregando = chamadosQuery.isLoading || chamadosQuery.isFetching;
-  const tecnicos = (tecnicosQuery.data ?? []).filter((u) => u.tipo === "ti");
+  const tecnicos = useMemo(
+    () => (tecnicosQuery.data ?? []).filter((u) => u.tipo === "ti"),
+    [tecnicosQuery.data]
+  );
+
+  const chamadosFiltrados = useMemo(
+    () => aplicarFiltros(chamados),
+    [aplicarFiltros, chamados]
+  );
 
   useEffect(() => {
     if (chamadosQuery.error) {
@@ -68,40 +93,18 @@ export default function Chamados() {
     alternarMenu,
   } = useChamadosMenuControl();
 
-  const chamadosFiltrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-
-    return chamados
-      .filter((chamado) => {
-        const correspondeStatus =
-          statusFiltro === "todos" ||
-          (statusFiltro === "concluido"
-            ? ["concluido", "fechado"].includes(chamado.status)
-            : chamado.status === statusFiltro);
-
-        const correspondeBusca =
-          !termo ||
-          [
-            chamado.titulo,
-            chamado.descricao,
-            chamado.solicitante?.nome,
-            chamado.tecnico?.nome,
-            chamado.setor,
-            chamado.id,
-          ]
-            .filter(Boolean)
-            .some((valor) => valor.toString().toLowerCase().includes(termo));
-
-        return correspondeStatus && correspondeBusca;
-      })
-      .sort(
-        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
-      );
-  }, [busca, chamados, statusFiltro]);
+  const acoes = useChamadoAcoes({
+    usuario,
+    atualizarMutation,
+    excluirMutation,
+    setErro,
+  });
 
   useEffect(() => {
     setSelecionados((atual) =>
-      atual.filter((id) => chamadosFiltrados.some((chamado) => chamado.id === id))
+      atual.filter((id) =>
+        chamadosFiltrados.some((chamado) => chamado.id === id)
+      )
     );
   }, [chamadosFiltrados]);
 
@@ -129,10 +132,8 @@ export default function Chamados() {
       await atualizarMutation.mutateAsync({ id: editandoId, dados: payload });
       setForm(FORM_INICIAL);
       setEditandoId(null);
-      toast.success("Chamado atualizado com sucesso.");
     } catch (error) {
       setErro(error.message || "Erro ao salvar chamado");
-      toast.error(error.message || "Erro ao salvar chamado.");
     }
   }
 
@@ -154,51 +155,6 @@ export default function Chamados() {
     setErro(null);
   }
 
-  async function remover(id) {
-    const confirmado = await confirm({
-      title: "Excluir chamado",
-      description: "Essa ação remove o chamado da lista. Deseja continuar?",
-      confirmLabel: "Excluir",
-    });
-    if (!confirmado) return;
-
-    try {
-      await excluirMutation.mutateAsync(id);
-      toast.success("Chamado excluído com sucesso.");
-    } catch (error) {
-      setErro(error.message || "Erro ao excluir chamado");
-      toast.error(error.message || "Erro ao excluir chamado.");
-    }
-  }
-
-  async function assumirChamado(id) {
-    try {
-      await atualizarMutation.mutateAsync({ id, dados: { tecnicoId: usuario.id } });
-      toast.success("Chamado assumido com sucesso.");
-    } catch (error) {
-      setErro(error.message || "Erro ao assumir chamado");
-      toast.error(error.message || "Erro ao assumir chamado.");
-    }
-  }
-
-  async function concluirChamado(id) {
-    const confirmado = await confirm({
-      title: "Concluir chamado",
-      description: "O chamado será marcado como concluído. Deseja continuar?",
-      confirmLabel: "Concluir",
-      variant: "primary",
-    });
-    if (!confirmado) return;
-
-    try {
-      await atualizarMutation.mutateAsync({ id, dados: { status: "concluido" } });
-      toast.success("Chamado concluído com sucesso.");
-    } catch (error) {
-      setErro(error.message || "Erro ao concluir chamado");
-      toast.error(error.message || "Erro ao concluir chamado.");
-    }
-  }
-
   function alternarSelecao(id) {
     setSelecionados((atual) =>
       atual.includes(id) ? atual.filter((item) => item !== id) : [...atual, id]
@@ -208,12 +164,10 @@ export default function Chamados() {
   function alternarSelecionarTodos() {
     if (!chamadosFiltrados.length) return;
 
-    const todosSelecionados = chamadosFiltrados.every((c) =>
-      selecionados.includes(c.id)
-    );
+    const todos = chamadosFiltrados.every((c) => selecionados.includes(c.id));
 
     setSelecionados((atual) => {
-      if (todosSelecionados) {
+      if (todos) {
         return atual.filter(
           (id) => !chamadosFiltrados.some((c) => c.id === id)
         );
@@ -224,74 +178,9 @@ export default function Chamados() {
     });
   }
 
-  async function concluirSelecionados() {
-    const elegiveis = chamadosFiltrados.filter(
-      (c) =>
-        selecionados.includes(c.id) &&
-        !["concluido", "fechado"].includes(c.status)
-    );
-    if (!elegiveis.length) return;
-
-    const confirmado = await confirm({
-      title: "Concluir chamados selecionados",
-      description: `Os ${elegiveis.length} chamados selecionados serão concluídos.`,
-      confirmLabel: "Concluir",
-      variant: "primary",
-    });
-    if (!confirmado) return;
-
-    try {
-      await Promise.all(
-        elegiveis.map((c) =>
-          atualizarMutation.mutateAsync({ id: c.id, dados: { status: "concluido" } })
-        )
-      );
-      setSelecionados([]);
-      toast.success("Chamados concluídos com sucesso.");
-    } catch (error) {
-      setErro(error.message || "Erro ao concluir chamados selecionados");
-      toast.error(error.message || "Erro ao concluir chamados selecionados.");
-    }
-  }
-
-  async function assumirSelecionados() {
-    const elegiveis = chamadosFiltrados.filter((c) =>
-      selecionados.includes(c.id)
-    );
-    if (!elegiveis.length) return;
-
-    const confirmado = await confirm({
-      title: "Assumir chamados selecionados",
-      description: `Você será definido como responsável por ${elegiveis.length} chamado(s).`,
-      confirmLabel: "Assumir",
-      variant: "primary",
-    });
-    if (!confirmado) return;
-
-    try {
-      await Promise.all(
-        elegiveis.map((c) =>
-          atualizarMutation.mutateAsync({ id: c.id, dados: { tecnicoId: usuario.id } })
-        )
-      );
-      setSelecionados([]);
-      toast.success("Chamados assumidos com sucesso.");
-    } catch (error) {
-      setErro(error.message || "Erro ao assumir chamados selecionados");
-      toast.error(error.message || "Erro ao assumir chamados selecionados.");
-    }
-  }
-
-  function limparFiltros() {
-    setBusca("");
-    setStatusFiltro("todos");
+  function limparFiltrosESelecao() {
+    limparFiltros();
     setSelecionados([]);
-  }
-
-  function irParaPagina(novaPagina) {
-    if (novaPagina < 1) return;
-    if (meta?.totalPages && novaPagina > meta.totalPages) return;
-    setPagina(novaPagina);
   }
 
   const todosSelecionados =
@@ -299,13 +188,7 @@ export default function Chamados() {
     chamadosFiltrados.every((c) => selecionados.includes(c.id));
 
   const quantidadeConcluiveis = chamadosFiltrados.filter(
-    (c) =>
-      selecionados.includes(c.id) &&
-      !["concluido", "fechado"].includes(c.status)
-  ).length;
-
-  const filtrosAtivos = [busca.trim() !== "", statusFiltro !== "todos"].filter(
-    Boolean
+    (c) => selecionados.includes(c.id) && !STATUS_FECHADOS.includes(c.status)
   ).length;
 
   return (
@@ -332,22 +215,27 @@ export default function Chamados() {
             statusFiltro={statusFiltro}
             onStatusFiltroChange={setStatusFiltro}
             limite={limite}
-            onLimiteChange={(v) => {
-              setLimite(v);
-              setPagina(1);
-            }}
+            onLimiteChange={setLimite}
             totalFiltrado={chamadosFiltrados.length}
             totalPagina={chamados.length}
             filtrosAtivos={filtrosAtivos}
-            onLimparFiltros={limparFiltros}
+            onLimparFiltros={limparFiltrosESelecao}
           />
 
           <ChamadosSelectionBar
             selecionadosCount={selecionados.length}
             quantidadeConcluiveis={quantidadeConcluiveis}
             isTi={isTi}
-            onAssumirSelecionados={assumirSelecionados}
-            onConcluirSelecionados={concluirSelecionados}
+            onAssumirSelecionados={() =>
+              acoes.assumirSelecionados(chamadosFiltrados, selecionados, () =>
+                setSelecionados([])
+              )
+            }
+            onConcluirSelecionados={() =>
+              acoes.concluirSelecionados(chamadosFiltrados, selecionados, () =>
+                setSelecionados([])
+              )
+            }
           />
 
           <div className="management-list">
@@ -369,7 +257,11 @@ export default function Chamados() {
             </div>
 
             {carregando && (
-              <div className="management-list__feedback">Carregando...</div>
+              <div className="skeleton-stack" aria-busy="true" aria-live="polite">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <SkeletonRow key={idx} />
+                ))}
+              </div>
             )}
 
             {!carregando &&
@@ -385,10 +277,10 @@ export default function Chamados() {
                   onToggleMenu={alternarMenu}
                   onFecharMenu={fecharMenu}
                   onAbrirConversa={setChamadoConversa}
-                  onAssumir={assumirChamado}
+                  onAssumir={acoes.assumirChamado}
                   onEditar={editarChamado}
-                  onConcluir={concluirChamado}
-                  onRemover={remover}
+                  onConcluir={acoes.concluirChamado}
+                  onRemover={acoes.remover}
                   menuRef={menuRef}
                   buttonRef={(node) => {
                     if (node) menuButtonRefs.current[c.id] = node;
@@ -401,10 +293,19 @@ export default function Chamados() {
 
             {!carregando && chamadosFiltrados.length === 0 && (
               <div className="management-list__feedback">
-                <EmptyState
-                  title="Nenhum chamado encontrado"
-                  description="Refine sua busca ou altere o status selecionado para encontrar registros."
-                />
+                {filtrosAtivos > 0 ? (
+                  <EmptyState
+                    title="Nenhum chamado encontrado"
+                    description="Sua busca ou filtro de status não retornou resultados."
+                    actionLabel="Limpar filtros"
+                    onAction={limparFiltrosESelecao}
+                  />
+                ) : (
+                  <EmptyState
+                    title="Nenhum chamado na fila"
+                    description="A fila está limpa no momento. Aproveite para revisar pendências antigas."
+                  />
+                )}
               </div>
             )}
           </div>
@@ -414,7 +315,7 @@ export default function Chamados() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => irParaPagina(pagina - 1)}
+                onClick={() => irParaPagina(pagina - 1, meta.totalPages)}
                 disabled={pagina <= 1 || carregando}
               >
                 Anterior
@@ -427,7 +328,7 @@ export default function Chamados() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => irParaPagina(pagina + 1)}
+                onClick={() => irParaPagina(pagina + 1, meta.totalPages)}
                 disabled={pagina >= meta.totalPages || carregando}
               >
                 Próxima

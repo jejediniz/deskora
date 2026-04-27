@@ -1,35 +1,38 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 const rateLimit = require('../../src/server/utils/rateLimit')
 
-describe('rateLimit.consume', () => {
-  beforeEach(() => {
-    rateLimit.reset('k')
+beforeEach(() => {
+  rateLimit.reset('chave-teste')
+  vi.useRealTimers()
+})
+
+describe('rateLimit', () => {
+  it('permite até max requisições e bloqueia depois', () => {
+    const opts = { max: 3, windowMs: 1000 }
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(true)
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(true)
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(true)
+    const fourth = rateLimit.consume('chave-teste', opts)
+    expect(fourth.allowed).toBe(false)
+    expect(fourth.retryAfterMs).toBeGreaterThan(0)
   })
 
-  it('permite requisições até o limite', () => {
-    for (let i = 0; i < 3; i += 1) {
-      const r = rateLimit.consume('k', { max: 3, windowMs: 1000 })
-      expect(r.allowed).toBe(true)
-    }
+  it('reset limpa o bucket', () => {
+    const opts = { max: 1, windowMs: 60_000 }
+    rateLimit.consume('chave-teste', opts)
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(false)
+    rateLimit.reset('chave-teste')
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(true)
   })
 
-  it('bloqueia quando excede e expõe retryAfterMs', () => {
-    for (let i = 0; i < 3; i += 1) {
-      rateLimit.consume('k', { max: 3, windowMs: 1000 })
-    }
-
-    const r = rateLimit.consume('k', { max: 3, windowMs: 1000 })
-    expect(r.allowed).toBe(false)
-    expect(r.retryAfterMs).toBeGreaterThan(0)
-  })
-
-  it('reseta via função reset()', () => {
-    for (let i = 0; i < 3; i += 1) {
-      rateLimit.consume('k', { max: 3, windowMs: 1000 })
-    }
-    rateLimit.reset('k')
-    const r = rateLimit.consume('k', { max: 3, windowMs: 1000 })
-    expect(r.allowed).toBe(true)
+  it('libera após a janela expirar', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 0))
+    const opts = { max: 1, windowMs: 1000 }
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(true)
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(false)
+    vi.advanceTimersByTime(1500)
+    expect(rateLimit.consume('chave-teste', opts).allowed).toBe(true)
   })
 })

@@ -1,96 +1,32 @@
-import { createContext, useContext, useCallback, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import {
-  useMutation,
-  useQuery,
-  useQueryClient
-} from "@tanstack/react-query";
-import { useAuth } from "./authContext";
-import {
-  listarChamados,
-  criarChamado,
-  atualizarChamado,
-  excluirChamado
-} from "../services/chamadosApi";
+  useAtualizarChamadoMutation,
+  useCriarChamadoMutation,
+  useExcluirChamadoMutation
+} from "../hooks/useChamadosQueries";
 
 const ChamadosContext = createContext(null);
 
-export const CHAMADOS_QUERY_KEY = ["chamados", "listagem"];
-
-function useChamadosListQuery({ page = 1, limit = 200 } = {}) {
-  const { usuario } = useAuth();
-
-  return useQuery({
-    queryKey: [...CHAMADOS_QUERY_KEY, { page, limit, userId: usuario?.id }],
-    queryFn: () => listarChamados({ page, limit }),
-    enabled: Boolean(usuario),
-    staleTime: 15_000
-  });
-}
-
 export function ChamadosProvider({ children }) {
-  const queryClient = useQueryClient();
   const [chamadoEmEdicao, setChamadoEmEdicao] = useState(null);
 
-  const listagem = useChamadosListQuery({ page: 1, limit: 200 });
+  const criarMutation = useCriarChamadoMutation();
+  const atualizarMutation = useAtualizarChamadoMutation();
+  const excluirMutation = useExcluirChamadoMutation();
 
-  const invalidarChamados = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: CHAMADOS_QUERY_KEY });
-  }, [queryClient]);
-
-  const criarMutation = useMutation({
-    mutationFn: criarChamado,
-    onSuccess: invalidarChamados
-  });
-
-  const atualizarMutation = useMutation({
-    mutationFn: ({ id, dados }) => atualizarChamado(id, dados),
-    onSuccess: invalidarChamados
-  });
-
-  const excluirMutation = useMutation({
-    mutationFn: excluirChamado,
-    onSuccess: invalidarChamados
-  });
-
-  const criarChamadoHandler = useCallback(
-    (dados) => criarMutation.mutateAsync(dados),
-    [criarMutation]
-  );
-
-  const atualizarChamadoHandler = useCallback(
-    (id, dados) => atualizarMutation.mutateAsync({ id, dados }),
-    [atualizarMutation]
-  );
-
-  const excluirChamadoHandler = useCallback(
-    (id) => excluirMutation.mutateAsync(id),
-    [excluirMutation]
-  );
+  const criarChamado = criarMutation.mutateAsync;
+  const atualizarMutateAsync = atualizarMutation.mutateAsync;
+  const excluirChamado = excluirMutation.mutateAsync;
 
   const value = useMemo(
     () => ({
-      chamados: listagem.data?.items ?? [],
-      meta: listagem.data?.meta ?? null,
-      carregando: listagem.isLoading || listagem.isFetching,
-      erro: listagem.error?.message ?? null,
       chamadoEmEdicao,
       setChamadoEmEdicao,
-      criarChamado: criarChamadoHandler,
-      atualizarChamado: atualizarChamadoHandler,
-      excluirChamado: excluirChamadoHandler,
-      recarregar: () => listagem.refetch()
+      criarChamado,
+      atualizarChamado: (id, dados) => atualizarMutateAsync({ id, dados }),
+      excluirChamado
     }),
-    [
-      listagem.data,
-      listagem.isLoading,
-      listagem.isFetching,
-      listagem.error,
-      listagem.refetch,
-      chamadoEmEdicao,
-      criarChamadoHandler,
-      atualizarChamadoHandler,
-      excluirChamadoHandler
-    ]
+    [chamadoEmEdicao, atualizarMutateAsync, criarChamado, excluirChamado]
   );
 
   return (

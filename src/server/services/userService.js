@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt')
 const AppError = require('../utils/AppError')
 const userRepository = require('../repositories/userRepository')
 const logger = require('../utils/logger')
+const { hashSenha } = require('./authService')
 
 exports.list = async () => {
   return userRepository.list()
@@ -22,7 +22,7 @@ exports.create = async ({ nome, email, senha, tipo, admin, ativo }) => {
     throw new AppError('Email já cadastrado', 409)
   }
 
-  const senha_hash = await bcrypt.hash(senha, 10)
+  const senha_hash = await hashSenha(senha)
 
   const usuario = await userRepository.create({
     nome,
@@ -33,15 +33,13 @@ exports.create = async ({ nome, email, senha, tipo, admin, ativo }) => {
     ativo: ativo ?? true
   })
 
-  logger.audit('usuario.criado', {
-    usuarioId: usuario.id
-  })
+  logger.audit('usuario.criado', { usuarioId: usuario.id })
 
   return usuario
 }
 
 exports.update = async (id, { nome, email, senha, tipo, admin, ativo }) => {
-  let senha_hash = null
+  let senha_hash
 
   if (email) {
     const existente = await userRepository.findByEmail(email)
@@ -51,7 +49,7 @@ exports.update = async (id, { nome, email, senha, tipo, admin, ativo }) => {
   }
 
   if (senha) {
-    senha_hash = await bcrypt.hash(senha, 10)
+    senha_hash = await hashSenha(senha)
   }
 
   const usuario = await userRepository.update(id, {
@@ -64,9 +62,7 @@ exports.update = async (id, { nome, email, senha, tipo, admin, ativo }) => {
   })
 
   if (usuario) {
-    logger.audit('usuario.atualizado', {
-      usuarioId: usuario.id
-    })
+    logger.audit('usuario.atualizado', { usuarioId: usuario.id })
   }
 
   return usuario
@@ -76,9 +72,7 @@ exports.remove = async (id) => {
   const removido = await userRepository.remove(id)
 
   if (removido) {
-    logger.audit('usuario.removido', {
-      usuarioId: removido.id
-    })
+    logger.audit('usuario.removido', { usuarioId: removido.id })
   }
 
   return removido

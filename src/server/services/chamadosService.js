@@ -23,6 +23,13 @@ exports.create = async (dados, usuarioId) => {
   return chamado
 }
 
+function resolveTecnicoFilter(value, usuarioId) {
+  if (value === undefined) return undefined
+  if (value === 'me') return usuarioId
+  if (value === 'sem') return null
+  return Number(value)
+}
+
 exports.list = async (usuarioId, { listarTodos = false, filtros = {} } = {}) => {
   const page = Number(filtros.page || 1)
   const limit = Number(filtros.limit || 20)
@@ -31,9 +38,15 @@ exports.list = async (usuarioId, { listarTodos = false, filtros = {} } = {}) => 
     throw new AppError('Permissão negada', 403)
   }
 
+  const tecnicoId = listarTodos
+    ? resolveTecnicoFilter(filtros.tecnicoId, usuarioId)
+    : undefined
+
   const queryFilters = {
     status: filtros.status,
     prioridade: filtros.prioridade,
+    q: filtros.q,
+    tecnicoId,
     page,
     limit,
     usuarioId: listarTodos ? filtros.usuarioId : usuarioId
@@ -106,4 +119,14 @@ exports.remove = async (id, usuarioId, { deletarQualquer = false } = {}) => {
   }
 
   return removido
+}
+
+exports.getMetrics = async (user) => {
+  const isTiOuAdmin = user?.admin === true || user?.tipo === 'ti'
+
+  if (isTiOuAdmin) {
+    return chamadosRepository.getMetrics()
+  }
+
+  return chamadosRepository.getMetrics({ usuarioId: user.id })
 }

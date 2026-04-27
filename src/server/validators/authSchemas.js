@@ -1,11 +1,20 @@
 const Joi = require('joi')
 
-const emailRule = Joi.string().email({ tlds: { allow: false } }).max(160)
+const MIN_PASSWORD_LENGTH = 8
+const MAX_PASSWORD_LENGTH = 120
+
+const emailRule = Joi.string()
+  .email({ tlds: { allow: false } })
+  .max(160)
+  .lowercase()
+  .trim()
+
+const senhaRule = Joi.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH)
 
 const registerSchema = Joi.object({
-  nome: Joi.string().min(2).max(120).required(),
+  nome: Joi.string().trim().min(2).max(120).required(),
   email: emailRule.required(),
-  senha: Joi.string().min(6).max(120).required(),
+  senha: senhaRule.required(),
   tipo: Joi.string().valid('comum', 'ti').optional(),
   admin: Joi.boolean().optional(),
   ativo: Joi.boolean().optional()
@@ -13,10 +22,14 @@ const registerSchema = Joi.object({
 
 const loginSchema = Joi.object({
   email: emailRule.required(),
-  senha: Joi.string().min(6).max(120).required()
+  // login mantém min 6 para retrocompat com usuários já cadastrados;
+  // a política nova vale para criação/atualização
+  senha: Joi.string().min(6).max(MAX_PASSWORD_LENGTH).required()
 })
 
 module.exports = {
-  registerSchema,
-  loginSchema
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  loginSchema,
+  registerSchema
 }

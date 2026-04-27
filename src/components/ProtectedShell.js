@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Cabecalho from "../componentes/Cabecalho";
-import Container from "../componentes/Container";
-import Rodape from "../componentes/Rodape";
+import Cabecalho from "./Cabecalho";
+import Container from "./Container";
+import Rodape from "./Rodape";
+import KeyboardShortcuts from "./KeyboardShortcuts";
 import { useAuth } from "../contextos/authContext";
 
 export default function ProtectedShell({ children }) {
@@ -31,6 +32,7 @@ export default function ProtectedShell({ children }) {
       <Cabecalho />
       <Container className="app-main">{children}</Container>
       <Rodape />
+      <KeyboardShortcuts />
     </div>
   );
 }

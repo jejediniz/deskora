@@ -1,65 +1,55 @@
-import api from "./api";
+import http from "./http";
 
-/**
- * LISTAR CHAMADOS
- */
 export async function listarChamados(params = {}) {
-  const response = await api.get("/chamados", { params });
+  const response = await http.get("/chamados", { params });
   return {
-    items: response.data.data,
-    meta: response.data.meta,
+    items: response.data,
+    meta: response.meta
   };
 }
 
-/**
- * CRIAR CHAMADO
- */
 export async function criarChamado(dados) {
-  const response = await api.post("/chamados", {
+  const response = await http.post("/chamados", {
     titulo: dados.titulo,
     descricao: dados.descricao,
     prioridade: dados.prioridade?.toLowerCase() || "media",
     tecnicoId: dados.tecnicoId,
-    setor: dados.setor,
+    setor: dados.setor
   });
-
-  return response.data.data;
+  return response.data;
 }
 
-/**
- * ATUALIZAR STATUS
- */
 export async function atualizarChamado(id, dados) {
-  const response = await api.put(`/chamados/${id}`, {
+  const response = await http.put(`/chamados/${id}`, {
     titulo: dados.titulo,
     descricao: dados.descricao,
     prioridade: dados.prioridade,
     status: dados.status,
     tecnicoId: dados.tecnicoId,
-    setor: dados.setor,
+    setor: dados.setor
   });
-
-  return response.data.data;
+  return response.data;
 }
 
-/**
- * DELETAR CHAMADO
- */
 export async function excluirChamado(id) {
-  await api.delete(`/chamados/${id}`);
+  await http.delete(`/chamados/${id}`);
   return true;
 }
 
 export async function listarInteracoesChamado(id) {
-  const response = await api.get(`/chamados/${id}/interacoes`);
-  return response.data.data;
+  const response = await http.get(`/chamados/${id}/interacoes`);
+  return response.data;
 }
 
 export async function criarInteracaoChamado(id, dados) {
-  const response = await api.post(`/chamados/${id}/interacoes`, {
+  const response = await http.post(`/chamados/${id}/interacoes`, {
     mensagem: dados.mensagem,
-    tipo: dados.tipo || "publica",
+    tipo: dados.tipo || "publica"
   });
+  return response.data;
+}
 
-  return response.data.data;
+export async function obterMetricasChamados() {
+  const response = await http.get("/chamados/metrics");
+  return response.data;
 }

@@ -1,65 +1,81 @@
 import { useAuth } from "../contextos/authContext";
-import { useChamados } from "../contextos/chamadosContext";
+import { useChamadosQuery } from "../hooks/useChamadosQueries";
 import { useMemo, useState } from "react";
-import { Button, EmptyState, Input, PageHeader } from "../components/ui";
+import { useRouter } from "next/navigation";
+import { Button, EmptyState, Input, PageHeader, SkeletonCard } from "../components/ui";
+import { usePersistentState } from "../hooks/usePersistentState";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import ChamadoConversationModal from "../components/chamados/ChamadoConversationModal";
 import {
   PRIORIDADE_LABEL,
+  STATUS_FECHADOS,
   STATUS_FILTERS,
-  STATUS_LABEL,
+  STATUS_LABEL
 } from "../config/chamados";
-import { formatDate } from "../utils/formatters";
+import { formatDate, formatDateTime, formatRelative } from "../utils/formatters";
 
 export default function ChamadosCliente() {
   const { usuario } = useAuth();
-  const { chamados, carregando, erro, recarregar } = useChamados();
-  const [statusFiltro, setStatusFiltro] = useState("todos");
+  const router = useRouter();
+  const [statusFiltro, setStatusFiltro] = usePersistentState(
+    "operadesk:meus-chamados:statusFiltro",
+    "todos"
+  );
   const [filtroTexto, setFiltroTexto] = useState("");
   const [chamadoAtivo, setChamadoAtivo] = useState(null);
 
   const isAdmin = usuario?.admin === true;
   const isTi = usuario?.tipo === "ti";
-  const usuarioId = usuario?.id;
 
-  const chamadosPorPerfil = useMemo(() => {
-    if (!usuarioId) return [];
+  const filtroTextoDebounced = useDebouncedValue(filtroTexto.trim(), 300);
 
-    if (isAdmin) {
-      return chamados;
-    }
+  // TI (não-admin) vê só o que é dele; admin vê tudo; comum é filtrado pelo
+  // próprio backend automaticamente pelo cookie de sessão.
+  const tecnicoId = isTi && !isAdmin ? "me" : undefined;
 
-    if (isTi) {
-      return chamados.filter(
-        (c) => (c.tecnico?.id ?? c.tecnico_id) === usuarioId
-      );
-    }
+  const chamadosQuery = useChamadosQuery({
+    page: 1,
+    limit: 100,
+    q: filtroTextoDebounced || undefined,
+    tecnicoId,
+  });
 
-    return chamados.filter(
-      (c) => (c.usuario_id ?? c.solicitante?.id) === usuarioId
-    );
-  }, [chamados, usuarioId, isAdmin, isTi]);
+  const chamados = useMemo(
+    () => chamadosQuery.data?.items ?? [],
+    [chamadosQuery.data]
+  );
+  const carregando = chamadosQuery.isLoading;
+  const erro = chamadosQuery.error?.message;
 
   const filteredChamados = useMemo(() => {
-    const termos = filtroTexto.trim().toLowerCase();
-    return chamadosPorPerfil.filter((c) => {
-      const matchesStatus =
-        statusFiltro === "todos" ||
-        (statusFiltro === "concluido"
-          ? ["concluido", "fechado"].includes(c.status)
-          : c.status === statusFiltro);
-
-      const matchesTexto =
-        !termos ||
-        [c.titulo, c.descricao, c.solicitante?.nome, c.id]
-          .filter(Boolean)
-          .some((valor) => valor.toString().toLowerCase().includes(termos));
-
-      return matchesStatus && matchesTexto;
+    return chamados.filter((c) => {
+      if (statusFiltro === "todos") return true;
+      if (statusFiltro === "concluido") {
+        return STATUS_FECHADOS.includes(c.status);
+      }
+      return c.status === statusFiltro;
     });
-  }, [chamadosPorPerfil, filtroTexto, statusFiltro]);
+  }, [chamados, statusFiltro]);
+
+  const buscaAtiva = filtroTexto.trim() !== "" || statusFiltro !== "todos";
 
   if (carregando) {
-    return <p>Carregando chamados...</p>;
+    return (
+      <>
+        <PageHeader
+          centered
+          title="Meus chamados"
+          subtitle="Acompanhe o andamento dos seus atendimentos"
+        />
+        <section className="meus-chamados">
+          <div className="cliente-list" aria-busy="true" aria-live="polite">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <SkeletonCard key={idx} lines={3} />
+            ))}
+          </div>
+        </section>
+      </>
+    );
   }
 
   if (erro) {
@@ -95,7 +111,7 @@ export default function ChamadosCliente() {
             <Input
               label="Buscar chamados"
               hideLabel
-              placeholder="Buscar por título ou descrição"
+              placeholder="Buscar por título, descrição, técnico ou setor"
               value={filtroTexto}
               onChange={(e) => setFiltroTexto(e.target.value)}
             />
@@ -112,10 +128,24 @@ export default function ChamadosCliente() {
         </div>
 
         {filteredChamados.length === 0 && (
-          <EmptyState
-            title="Nenhum chamado encontrado"
-            description="Ajuste a busca ou o status selecionado para encontrar seus atendimentos."
-          />
+          buscaAtiva ? (
+            <EmptyState
+              title="Nenhum chamado encontrado"
+              description="Ajuste a busca ou o status selecionado para encontrar seus atendimentos."
+              actionLabel="Limpar filtros"
+              onAction={() => {
+                setFiltroTexto("");
+                setStatusFiltro("todos");
+              }}
+            />
+          ) : (
+            <EmptyState
+              title="Você ainda não tem chamados"
+              description="Quando precisar de suporte, abra um chamado e a equipe será notificada."
+              actionLabel="Abrir meu primeiro chamado"
+              onAction={() => router.push("/abrir-chamado")}
+            />
+          )
         )}
 
         <div className="cliente-list">
@@ -125,8 +155,11 @@ export default function ChamadosCliente() {
                 <span className={`status status-${c.status}`}>
                   {STATUS_LABEL[c.status] || c.status}
                 </span>
-                <span className="data">
-                  Atualizado em {formatDate(c.updated_at || c.created_at)}
+                <span
+                  className="data"
+                  title={formatDateTime(c.updated_at || c.created_at)}
+                >
+                  Atualizado {formatRelative(c.updated_at || c.created_at)}
                 </span>
               </div>
 
@@ -194,7 +227,7 @@ export default function ChamadosCliente() {
         chamado={chamadoAtivo}
         open={Boolean(chamadoAtivo)}
         onClose={() => setChamadoAtivo(null)}
-        onUpdated={recarregar}
+        onUpdated={() => chamadosQuery.refetch()}
       />
     </>
   );

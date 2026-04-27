@@ -1,8 +1,23 @@
 const pool = require('../config/database')
 
+const CHAMADO_COLUMNS = [
+  'id',
+  'titulo',
+  'descricao',
+  'status',
+  'prioridade',
+  'setor',
+  'usuario_id',
+  'tecnico_id',
+  'created_at',
+  'updated_at'
+]
+
+const SELECT_CHAMADO_FIELDS = CHAMADO_COLUMNS.map((col) => `c.${col}`).join(', ')
+
 const BASE_SELECT = `
   SELECT
-    c.*,
+    ${SELECT_CHAMADO_FIELDS},
     solicitante.nome AS solicitante_nome,
     solicitante.email AS solicitante_email,
     solicitante.tipo AS solicitante_tipo,
@@ -11,6 +26,19 @@ const BASE_SELECT = `
   FROM chamados c
   JOIN usuarios solicitante ON solicitante.id = c.usuario_id
   LEFT JOIN usuarios tecnico ON tecnico.id = c.tecnico_id
+`
+
+const RETURNING_DETAILS_TEMPLATE = (cteName) => `
+  SELECT
+    ${CHAMADO_COLUMNS.map((col) => `${cteName}.${col}`).join(', ')},
+    solicitante.nome AS solicitante_nome,
+    solicitante.email AS solicitante_email,
+    solicitante.tipo AS solicitante_tipo,
+    tecnico.nome AS tecnico_nome,
+    tecnico.email AS tecnico_email
+  FROM ${cteName}
+  JOIN usuarios solicitante ON solicitante.id = ${cteName}.usuario_id
+  LEFT JOIN usuarios tecnico ON tecnico.id = ${cteName}.tecnico_id
 `
 
 function mapChamado(row) {
@@ -61,16 +89,44 @@ function buildWhereClause(filters, values) {
     conditions.push(`c.usuario_id = $${values.length}`)
   }
 
+  if (filters.tecnicoId === null) {
+    conditions.push('c.tecnico_id IS NULL')
+  } else if (filters.tecnicoId !== undefined) {
+    values.push(filters.tecnicoId)
+    conditions.push(`c.tecnico_id = $${values.length}`)
+  }
+
+  if (filters.q) {
+    values.push(filters.q)
+    const idx = values.length
+    // ILIKE com pg_trgm GIN nos campos textuais; id também aceita match exato
+    conditions.push(`(
+      c.titulo ILIKE '%' || $${idx} || '%'
+      OR c.descricao ILIKE '%' || $${idx} || '%'
+      OR c.setor ILIKE '%' || $${idx} || '%'
+      OR solicitante.nome ILIKE '%' || $${idx} || '%'
+      OR tecnico.nome ILIKE '%' || $${idx} || '%'
+      OR c.id::text = $${idx}
+    )`)
+  }
+
   return conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 }
 
-async function listWithFilters({ status, prioridade, usuarioId, page, limit }) {
+async function listWithFilters({ status, prioridade, usuarioId, tecnicoId, q, page, limit }) {
   const values = []
-  const whereClause = buildWhereClause({ status, prioridade, usuarioId }, values)
+  const whereClause = buildWhereClause(
+    { status, prioridade, usuarioId, tecnicoId, q },
+    values
+  )
 
+  // JOIN em ambas para que filtros que tocam solicitante/tecnico funcionem
+  // tanto no count quanto na listagem
   const countQuery = `
     SELECT COUNT(*)::int AS total
     FROM chamados c
+    JOIN usuarios solicitante ON solicitante.id = c.usuario_id
+    LEFT JOIN usuarios tecnico ON tecnico.id = c.tecnico_id
     ${whereClause}
   `
 
@@ -114,18 +170,9 @@ async function criarComDetalhes(dados, usuarioId) {
     WITH novo AS (
       INSERT INTO chamados (titulo, descricao, status, prioridade, usuario_id, tecnico_id, setor)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
+      RETURNING ${CHAMADO_COLUMNS.join(', ')}
     )
-    SELECT
-      novo.*,
-      solicitante.nome AS solicitante_nome,
-      solicitante.email AS solicitante_email,
-      solicitante.tipo AS solicitante_tipo,
-      tecnico.nome AS tecnico_nome,
-      tecnico.email AS tecnico_email
-    FROM novo
-    JOIN usuarios solicitante ON solicitante.id = novo.usuario_id
-    LEFT JOIN usuarios tecnico ON tecnico.id = novo.tecnico_id
+    ${RETURNING_DETAILS_TEMPLATE('novo')}
   `
 
   const { rows } = await pool.query(query, [
@@ -141,47 +188,56 @@ async function criarComDetalhes(dados, usuarioId) {
   return mapChamado(rows[0])
 }
 
-async function atualizarComDetalhes(id, dados, { usuarioId = null } = {}) {
-  const values = [
-    dados.titulo ?? null,
-    dados.descricao ?? null,
-    dados.status ?? null,
-    dados.prioridade ?? null,
-    dados.tecnicoId ?? null,
-    dados.setor ?? null,
-    id
-  ]
+const UPDATE_FIELD_MAP = {
+  titulo: 'titulo',
+  descricao: 'descricao',
+  status: 'status',
+  prioridade: 'prioridade',
+  tecnicoId: 'tecnico_id',
+  setor: 'setor'
+}
 
-  let whereClause = 'WHERE id = $7'
+function buildUpdateSet(dados) {
+  const sets = []
+  const values = []
+
+  for (const [key, column] of Object.entries(UPDATE_FIELD_MAP)) {
+    if (dados[key] !== undefined) {
+      values.push(dados[key])
+      sets.push(`${column} = $${values.length}`)
+    }
+  }
+
+  return { sets, values }
+}
+
+async function atualizarComDetalhes(id, dados, { usuarioId = null } = {}) {
+  const { sets, values } = buildUpdateSet(dados)
+
+  if (sets.length === 0) {
+    return usuarioId === null
+      ? buscarPorIdQualquer(id)
+      : buscarPorId(id, usuarioId)
+  }
+
+  values.push(id)
+  const idPlaceholder = `$${values.length}`
+
+  let whereClause = `WHERE id = ${idPlaceholder}`
 
   if (usuarioId !== null) {
     values.push(usuarioId)
-    whereClause = `WHERE id = $7 AND usuario_id = $${values.length}`
+    whereClause = `WHERE id = ${idPlaceholder} AND usuario_id = $${values.length}`
   }
 
   const query = `
     WITH atualizado AS (
       UPDATE chamados
-      SET
-        titulo = COALESCE($1, titulo),
-        descricao = COALESCE($2, descricao),
-        status = COALESCE($3, status),
-        prioridade = COALESCE($4, prioridade),
-        tecnico_id = COALESCE($5, tecnico_id),
-        setor = COALESCE($6, setor)
+      SET ${sets.join(', ')}
       ${whereClause}
-      RETURNING *
+      RETURNING ${CHAMADO_COLUMNS.join(', ')}
     )
-    SELECT
-      atualizado.*,
-      solicitante.nome AS solicitante_nome,
-      solicitante.email AS solicitante_email,
-      solicitante.tipo AS solicitante_tipo,
-      tecnico.nome AS tecnico_nome,
-      tecnico.email AS tecnico_email
-    FROM atualizado
-    JOIN usuarios solicitante ON solicitante.id = atualizado.usuario_id
-    LEFT JOIN usuarios tecnico ON tecnico.id = atualizado.tecnico_id
+    ${RETURNING_DETAILS_TEMPLATE('atualizado')}
   `
 
   const { rows } = await pool.query(query, values)
@@ -205,13 +261,48 @@ async function deletarQualquer(id) {
   return rowCount > 0
 }
 
+async function getMetrics({ usuarioId = null, tecnicoId = null } = {}) {
+  const conditions = []
+  const values = []
+
+  if (usuarioId !== null) {
+    values.push(usuarioId)
+    conditions.push(`usuario_id = $${values.length}`)
+  }
+
+  if (tecnicoId !== null) {
+    values.push(tecnicoId)
+    conditions.push(`tecnico_id = $${values.length}`)
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+
+  const query = `
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status = 'aberto')::int AS abertos,
+      COUNT(*) FILTER (WHERE status = 'em_andamento')::int AS em_andamento,
+      COUNT(*) FILTER (WHERE status IN ('concluido', 'fechado'))::int AS concluidos,
+      COUNT(*) FILTER (
+        WHERE prioridade = 'alta' AND status NOT IN ('concluido', 'fechado')
+      )::int AS alta_prioridade_pendentes,
+      COUNT(*) FILTER (WHERE tecnico_id IS NULL)::int AS sem_tecnico
+    FROM chamados
+    ${whereClause}
+  `
+
+  const { rows } = await pool.query(query, values)
+  return rows[0]
+}
+
 module.exports = {
-  listWithFilters,
+  atualizarComDetalhes,
   buscarPorId,
   buscarPorIdQualquer,
   criarComDetalhes,
-  atualizarComDetalhes,
-  tocarAtualizacao,
   deletar,
-  deletarQualquer
+  deletarQualquer,
+  getMetrics,
+  listWithFilters,
+  tocarAtualizacao
 }

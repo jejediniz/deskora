@@ -1,5 +1,6 @@
 const { Pool } = require('pg')
 const { getEnv } = require('./env')
+const logger = require('../utils/logger')
 
 const globalForPg = globalThis
 
@@ -12,7 +13,7 @@ function createPool() {
     user: db.user,
     password: db.password,
     database: db.database,
-    max: Number(process.env.DB_POOL_MAX) || 10,
+    max: db.poolMax,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 5_000
   })
@@ -25,12 +26,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 pool.on('error', (err) => {
-  console.error(JSON.stringify({
-    level: 'error',
-    message: 'pg_pool_error',
-    error: err.message,
-    timestamp: new Date().toISOString()
-  }))
+  logger.error('pg_pool_error', { error: err?.message, code: err?.code })
 })
 
 module.exports = pool

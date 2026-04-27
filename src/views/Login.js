@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../contextos/authContext";
 import { useToast } from "../contextos/toastContext";
 import { Button, Input, Card } from "../components/ui";
-import AlternarTema from "../componentes/AlternarTema";
+import AlternarTema from "../components/AlternarTema";
 
 export default function Login() {
   const { login, estaAutenticado, carregando, erro } = useAuth();
@@ -49,29 +50,42 @@ export default function Login() {
 
   return (
     <>
-      {/* CABEÇALHO DO LOGIN (SEM BOTÕES) */}
       <header className="login-header">
-        <div className="login-header__row">
-          <div className="login-header__brand">
-            <span className="login-header__logo-scale">
-              <img
-                src="/img/simbolo%20-%20fundo%20transparente.png"
-                alt="OperaDesk"
-                className="brand-logo brand-logo--login"
-              />
-            </span>
-            <p>Entre para acessar a central de chamados.</p>
-          </div>
-          <div className="login-header__tools">
-            <span className="theme-switch-field__label" aria-hidden>
-              Escuro
-            </span>
-            <AlternarTema className="theme-switch--login" />
+        <div className="login-header__inner">
+          <div className="app-header__top app-header__top--login-brand">
+            <div className="app-header__top-left" aria-hidden="true" />
+            <Link
+              href="/"
+              className="app-header__brand app-header__brand--center"
+              aria-label="OperaDesk, ir ao início"
+            >
+              <span className="app-header__logo-scale">
+                <img
+                  src="/img/operadesk-wordmark-dark-ui.png"
+                  width={2515}
+                  height={689}
+                  alt=""
+                  aria-hidden="true"
+                  className="brand-logo brand-logo--header-center"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </span>
+            </Link>
+            <div className="app-header__actions login-header__actions">
+              <div className="theme-switch-field">
+                <span className="theme-switch-field__label" aria-hidden>
+                  Escuro
+                </span>
+                <AlternarTema className="theme-switch--login" />
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="login-layout">
+        <h1 className="sr-only">OperaDesk</h1>
         <Card className="auth-card">
           <h2>Login</h2>
           <p>Informe suas credenciais para acessar o ambiente de chamados.</p>

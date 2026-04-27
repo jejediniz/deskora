@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 
-const COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'operadesk_session'
+const RAW_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'operadesk_session'
+const IS_PROD = process.env.NODE_ENV === 'production'
+const COOKIE_NAME =
+  IS_PROD && !RAW_COOKIE_NAME.startsWith('__Host-')
+    ? `__Host-${RAW_COOKIE_NAME}`
+    : RAW_COOKIE_NAME
 
 const PUBLIC_PATHS = new Set(['/login'])
 

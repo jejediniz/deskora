@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
-import api, { setUnauthorizedHandler } from "../services/api";
+import http, { setUnauthorizedHandler } from "../services/http";
 
 const AuthContext = createContext(null);
 
@@ -17,9 +17,9 @@ export function AuthProvider({ children }) {
 
     async function recuperarSessao() {
       try {
-        const response = await api.get("/auth/me");
+        const response = await http.get("/auth/me");
         if (!cancelado) {
-          setUsuario(response.data.data);
+          setUsuario(response.data);
         }
       } catch {
         if (!cancelado) {
@@ -44,8 +44,8 @@ export function AuthProvider({ children }) {
     setErro(null);
 
     try {
-      const response = await api.post("/auth/login", { email, senha });
-      setUsuario(response.data.data);
+      const response = await http.post("/auth/login", { email, senha });
+      setUsuario(response.data);
       return true;
     } catch (error) {
       setErro(error.message || "Email ou senha inválidos");
@@ -57,9 +57,9 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.post("/auth/logout");
+      await http.post("/auth/logout");
     } catch {
-      // ignora erro de rede no logout — mesmo assim limpa o estado
+      // ignora erro de rede no logout — limpa o estado local mesmo assim
     }
     setUsuario(null);
   }, []);
