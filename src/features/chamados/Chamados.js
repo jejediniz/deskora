@@ -10,7 +10,7 @@ const ChamadoEditModal = dynamic(() => import("./ChamadoEditModal"), {
 });
 
 const ChamadoConversationModal = dynamic(
-  () => import("@/components/chamados/ChamadoConversationModal"),
+  () => import("./ChamadoConversationModal"),
   { ssr: false }
 );
 

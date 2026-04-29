@@ -3,7 +3,17 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Download, Pencil, Plus, Ban, Search } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Download,
+  FilterX,
+  Package,
+  Pencil,
+  Plus,
+  Ban,
+  Search,
+} from "lucide-react";
 import { useConfirm } from "@/contexts/confirmContext";
 import { useToast } from "@/contexts/toastContext";
 import {
@@ -357,117 +367,91 @@ export default function AtivosView() {
   const totalPaginas = meta?.totalPages ?? 1;
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 pb-28 pt-2 text-zinc-900 dark:text-zinc-100">
-      <div className="mb-4 flex flex-col gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-950 [font-family:var(--font-display)] dark:text-zinc-50">
-            Patrimônio
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Inventário corporativo com paginação e ações em massa. Busca integrada à tabela.
-          </p>
+    <div className="mx-auto max-w-[1600px] px-4 pb-28 pt-4 text-od-text">
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex gap-4">
+          <div
+            className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-od-text to-od-bg text-white shadow-lg shadow-od-text/25 dark:from-od-surface-soft dark:to-od-border/40 dark:text-od-text dark:shadow-none sm:flex"
+            aria-hidden
+          >
+            <Package className="size-7" strokeWidth={1.5} />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-od-muted">
+              Inventário corporativo
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-od-text [font-family:var(--font-display)]">
+              Patrimônio
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-od-muted">
+              Localize bens por nome ou número, filtre pela situação e use ações em lote quando precisar.
+            </p>
+          </div>
         </div>
         <Link
           href="/ativos/novo"
-          className="inline-flex items-center justify-center gap-1.5 border border-zinc-900 bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-od-text bg-od-text px-4 text-sm font-medium text-white shadow-md shadow-od-text/20 transition hover:bg-od-text/90 dark:border-od-border/40 dark:bg-od-surface-muted dark:text-od-text dark:shadow-none dark:hover:bg-od-border/30"
         >
           <Plus className="size-4" strokeWidth={1.75} aria-hidden />
           Registrar bem
         </Link>
-      </div>
+      </header>
 
-      <div
-        className="mb-3 flex gap-0 overflow-x-auto border border-b-0 border-zinc-200 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/40"
-        role="tablist"
-        aria-label="Situação do bem"
-      >
-        {abas.map((a) => (
-          <button
-            key={a.key}
-            type="button"
-            role="tab"
-            aria-selected={statusFiltro === a.key}
-            className={`shrink-0 border-b-2 px-3 py-2.5 text-left text-sm transition-colors ${
-              statusFiltro === a.key
-                ? "border-zinc-900 bg-white font-semibold text-zinc-900 dark:border-zinc-100 dark:bg-zinc-950 dark:text-zinc-50"
-                : "border-transparent text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-950/60 dark:hover:text-zinc-200"
-            }`}
-            onClick={() => setStatusFiltro(a.key)}
-          >
-            <span className="whitespace-nowrap">{a.label}</span>
+      <div className="overflow-hidden rounded-2xl border border-od-border/90 bg-od-card shadow-sm dark:border-od-border/60 dark:bg-od-card dark:shadow-none">
+        <div className="border-b border-od-border/40 bg-gradient-to-b from-od-surface-soft/90 to-od-surface-soft/40 px-4 py-4 dark:border-od-border/90 dark:from-od-surface/50 dark:to-od-surface/20">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <span
-              className={`ml-1.5 tabular-nums text-xs font-medium ${
-                statusFiltro === a.key ? "text-zinc-500 dark:text-zinc-400" : "text-zinc-400 dark:text-zinc-500"
-              }`}
+              id="patrimonio-situacao-label"
+              className="text-xs font-semibold uppercase tracking-wide text-od-muted"
             >
-              {a.count}
+              Situação
             </span>
-          </button>
-        ))}
-      </div>
-
-      <div className="mb-0 flex flex-wrap items-end gap-3 border border-zinc-200 bg-white px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-950">
-        <label className="block min-w-[10rem] flex-1 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Categoria
-          <select
-            className="mt-1 block w-full max-w-xs border border-zinc-200 bg-white py-1.5 pl-2 pr-8 text-sm font-normal normal-case text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-            value={categoriaFiltro}
-            onChange={(e) => setCategoriaFiltro(e.target.value)}
-          >
-            <option value="">Todas</option>
-            {categoriasLista.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="min-w-[14rem] text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          <span className="block">Exibição</span>
-          <div
-            className="mt-1 flex flex-wrap gap-1 normal-case"
-            role="group"
-            aria-label="Filtrar por registro ativo ou inativo"
-          >
-            {[
-              { key: VISIBILIDADE.ATIVOS, label: "Só ativos" },
-              { key: VISIBILIDADE.TODOS, label: "Todos" },
-              {
-                key: VISIBILIDADE.INATIVADOS,
-                label: `Inativados${typeof resumo?.totalInativados === "number" ? ` (${resumo.totalInativados})` : ""}`,
-              },
-            ].map((opt) => (
+            {filtrosAtivos ? (
               <button
-                key={opt.key}
                 type="button"
-                className={`border px-2 py-1 text-xs font-medium transition-colors ${
-                  visibilidade === opt.key
-                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                    : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600"
-                }`}
-                onClick={() => setVisibilidade(opt.key)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-od-muted transition-colors hover:bg-od-surface-muted/70 dark:text-od-muted dark:hover:bg-od-surface-muted/80"
+                onClick={limparFiltros}
               >
-                {opt.label}
+                <FilterX className="size-3.5 shrink-0 opacity-80" strokeWidth={2} aria-hidden />
+                Limpar filtros
+              </button>
+            ) : null}
+          </div>
+          <div
+            className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            role="tablist"
+            aria-labelledby="patrimonio-situacao-label"
+          >
+            {abas.map((a) => (
+              <button
+                key={a.key}
+                type="button"
+                role="tab"
+                aria-selected={statusFiltro === a.key}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm transition-all ${
+                  statusFiltro === a.key
+                    ? "bg-od-text font-medium text-white shadow-md shadow-od-text/15 ring-1 ring-od-text/10 dark:bg-od-surface-muted dark:font-semibold dark:text-od-text dark:shadow-none dark:ring-od-card/25"
+                    : "bg-od-card/90 font-medium text-od-muted ring-1 ring-od-border/90 hover:bg-od-card hover:text-od-text hover:ring-od-border-strong dark:bg-od-surface/60 dark:text-od-muted dark:ring-od-border-strong dark:hover:bg-od-surface-muted dark:hover:text-od-text"
+                }`}
+                onClick={() => setStatusFiltro(a.key)}
+              >
+                <span className="whitespace-nowrap">{a.label}</span>
+                <span
+                  className={`ml-1.5 tabular-nums text-xs ${
+                    statusFiltro === a.key ? "text-white/75 dark:text-od-muted" : "text-od-muted"
+                  }`}
+                >
+                  {a.count}
+                </span>
               </button>
             ))}
           </div>
         </div>
-        {filtrosAtivos ? (
-          <button
-            type="button"
-            className="mb-0.5 border border-transparent px-2 py-1 text-sm font-medium text-zinc-600 underline-offset-2 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-200"
-            onClick={limparFiltros}
-          >
-            Limpar filtros
-          </button>
-        ) : null}
-      </div>
 
-      <div className="border border-zinc-200 dark:border-zinc-800">
-        <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 bg-white px-2 py-2 dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="relative min-w-[12rem] flex-1">
+        <div className="flex flex-col gap-4 border-b border-od-border/40 bg-od-card p-4 dark:border-od-border/80 dark:bg-od-bg sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="relative min-w-[min(100%,12rem)] flex-1">
             <Search
-              className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-od-muted"
               strokeWidth={1.75}
               aria-hidden
             />
@@ -476,37 +460,94 @@ export default function AtivosView() {
               type="search"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar… (/ para focar)"
+              placeholder="Buscar por nome ou patrimônio… (/ foca aqui)"
               autoComplete="off"
-              className="w-full border border-zinc-200 bg-zinc-50 py-1.5 pl-9 pr-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:bg-zinc-950"
+              aria-label="Buscar na lista de patrimônio"
+              className="w-full rounded-xl border border-od-border bg-od-surface-soft/80 py-2.5 pl-10 pr-3 text-sm text-od-text placeholder:text-od-muted transition-shadow focus:border-od-border-strong focus:bg-od-card focus:outline-none focus:ring-2 focus:ring-od-text/10 dark:border-od-border-strong dark:bg-od-surface/50 dark:text-od-text dark:placeholder:text-od-muted dark:focus:border-od-muted dark:focus:bg-od-bg dark:focus:ring-od-text/10"
             />
           </div>
-          {busca !== buscaDebounced ? (
-            <span className="shrink-0 text-xs font-medium text-amber-700 dark:text-amber-400">Aplicando busca…</span>
-          ) : null}
-          {meta ? (
-            <span className="shrink-0 tabular-nums text-xs text-zinc-500 dark:text-zinc-400">{intervaloTexto}</span>
-          ) : null}
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
+            <label className="block w-full min-w-[10rem] sm:w-48">
+              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-od-muted">
+                Categoria
+              </span>
+              <select
+                className="w-full rounded-xl border border-od-border bg-od-card py-2 pl-3 pr-9 text-sm font-normal text-od-text shadow-sm transition-shadow focus:border-od-border-strong focus:outline-none focus:ring-2 focus:ring-od-text/10 dark:border-od-border-strong dark:bg-od-bg dark:text-od-text dark:focus:ring-od-text/10"
+                value={categoriaFiltro}
+                onChange={(e) => setCategoriaFiltro(e.target.value)}
+              >
+                <option value="">Todas</option>
+                {categoriasLista.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="w-full sm:w-auto">
+              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-od-muted">
+                Exibir registros
+              </span>
+              <div
+                className="inline-flex rounded-xl border border-od-border bg-od-surface-muted/70 p-1 dark:border-od-border-strong dark:bg-od-surface/40"
+                role="group"
+                aria-label="Filtrar por registro ativo ou inativo"
+              >
+                {[
+                  { key: VISIBILIDADE.ATIVOS, label: "Só ativos" },
+                  { key: VISIBILIDADE.TODOS, label: "Todos" },
+                  {
+                    key: VISIBILIDADE.INATIVADOS,
+                    label: `Inativados${typeof resumo?.totalInativados === "number" ? ` (${resumo.totalInativados})` : ""}`,
+                  },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                      visibilidade === opt.key
+                        ? "bg-od-card text-od-text shadow-sm ring-1 ring-od-border/80 dark:bg-od-surface-muted dark:text-od-text dark:ring-od-border-strong"
+                        : "text-od-muted hover:text-od-text dark:text-od-muted dark:hover:text-od-text"
+                    }`}
+                    onClick={() => setVisibilidade(opt.key)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex w-full flex-wrap items-center gap-2 border-t border-dashed border-od-border pt-3 dark:border-od-border sm:ml-auto sm:w-auto sm:border-t-0 sm:pt-0">
+            {busca !== buscaDebounced ? (
+              <span className="text-xs font-medium text-amber-700 dark:text-amber-400">Aplicando busca…</span>
+            ) : null}
+            {meta ? (
+              <span className="tabular-nums text-xs text-od-muted sm:ml-auto">{intervaloTexto}</span>
+            ) : null}
+          </div>
         </div>
 
         {erro ? (
-          <div className="border-b border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200">
+          <div
+            className="border-b border-red-200/90 bg-red-50/95 px-4 py-3 text-sm text-red-800 dark:border-red-900/35 dark:bg-red-950/35 dark:text-red-200"
+            role="alert"
+          >
             {erro}
           </div>
         ) : null}
 
         <div className="max-h-[min(70vh,780px)] overflow-auto">
           {carregando && !itensLista.length ? (
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800" aria-busy="true">
+            <div className="divide-y divide-od-border/35 dark:divide-od-border/45" aria-busy="true">
               {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="flex animate-pulse gap-3 px-2 py-2">
-                  <div className="h-4 w-4 shrink-0 rounded bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-4 flex-1 rounded bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-4 w-24 rounded bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-4 w-40 rounded bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-4 w-20 rounded bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-4 w-28 rounded bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-4 w-16 rounded bg-zinc-100 dark:bg-zinc-800" />
+                <div key={i} className="flex animate-pulse gap-3 px-4 py-3">
+                  <div className="h-4 w-4 shrink-0 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
+                  <div className="h-4 flex-1 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
+                  <div className="h-4 w-24 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
+                  <div className="h-4 w-40 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
+                  <div className="h-4 w-20 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
+                  <div className="h-4 w-28 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
+                  <div className="h-4 w-16 rounded bg-od-surface-muted dark:bg-od-surface-muted" />
                 </div>
               ))}
             </div>
@@ -519,14 +560,14 @@ export default function AtivosView() {
                   actionLabel="Limpar filtros"
                   onAction={limparFiltros}
                 >
-                  <div className="mt-4 flex max-w-lg flex-col gap-2 text-left text-sm text-zinc-600 dark:text-zinc-400">
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                  <div className="mt-4 flex max-w-lg flex-col gap-2 text-left text-sm text-od-muted">
+                    <p className="text-xs font-medium uppercase tracking-wide text-od-muted">
                       Sugestões
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        className="border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200"
+                        className="border border-od-border bg-od-card px-2 py-1 text-xs font-medium text-od-text-soft dark:border-od-border-strong dark:bg-od-bg dark:text-od-text"
                         onClick={() => {
                           setVisibilidade(VISIBILIDADE.TODOS);
                           setPagina(1);
@@ -536,7 +577,7 @@ export default function AtivosView() {
                       </button>
                       <button
                         type="button"
-                        className="border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200"
+                        className="border border-od-border bg-od-card px-2 py-1 text-xs font-medium text-od-text-soft dark:border-od-border-strong dark:bg-od-bg dark:text-od-text"
                         onClick={() => {
                           setStatusFiltro("todos");
                           setPagina(1);
@@ -548,7 +589,7 @@ export default function AtivosView() {
                         <button
                           key={c}
                           type="button"
-                          className="border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200"
+                          className="border border-od-border bg-od-card px-2 py-1 text-xs font-medium text-od-text-soft dark:border-od-border-strong dark:bg-od-bg dark:text-od-text"
                           onClick={() => {
                             setCategoriaFiltro(c);
                             setPagina(1);
@@ -571,22 +612,22 @@ export default function AtivosView() {
             </div>
           ) : (
             <table className="w-full border-collapse text-left text-sm">
-              <thead className="sticky top-0 z-10 border-b border-zinc-200 bg-zinc-100/95 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/95">
-                <tr className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                  <th scope="col" className="w-10 border-b border-zinc-200 px-2 py-2 dark:border-zinc-800">
+              <thead className="sticky top-0 z-10 border-b border-od-border/90 bg-od-surface-soft/95 backdrop-blur-md dark:border-od-border dark:bg-od-surface/95">
+                <tr className="text-[10px] font-semibold uppercase tracking-[0.06em] text-od-muted">
+                  <th scope="col" className="w-10 border-b border-od-border/90 px-3 py-3 dark:border-od-border">
                     <input
                       ref={headerCheckboxRef}
                       type="checkbox"
                       checked={todosMarcados}
                       onChange={alternarTodosNaPagina}
                       aria-label="Selecionar todos nesta página"
-                      className="size-3.5 rounded border-zinc-300 text-zinc-900 dark:border-zinc-600"
+                      className="size-3.5 rounded border-od-border-strong text-od-text dark:border-od-border-strong"
                     />
                   </th>
-                  <th scope="col" className="border-b border-zinc-200 px-2 py-2 dark:border-zinc-800">
+                  <th scope="col" className="border-b border-od-border/90 px-3 py-3 dark:border-od-border">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-[0.06em] text-od-muted hover:text-od-text-soft dark:text-od-muted dark:hover:text-od-text"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSortColumn("nome");
@@ -602,10 +643,10 @@ export default function AtivosView() {
                       ) : null}
                     </button>
                   </th>
-                  <th scope="col" className="border-b border-zinc-200 px-2 py-2 dark:border-zinc-800">
+                  <th scope="col" className="border-b border-od-border/90 px-3 py-3 dark:border-od-border">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-[0.06em] text-od-muted hover:text-od-text-soft dark:text-od-muted dark:hover:text-od-text"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSortColumn("categoria");
@@ -621,13 +662,13 @@ export default function AtivosView() {
                       ) : null}
                     </button>
                   </th>
-                  <th scope="col" className="border-b border-zinc-200 px-2 py-2 dark:border-zinc-800">
+                  <th scope="col" className="border-b border-od-border/90 px-3 py-3 dark:border-od-border">
                     Localização
                   </th>
-                  <th scope="col" className="border-b border-zinc-200 px-2 py-2 dark:border-zinc-800">
+                  <th scope="col" className="border-b border-od-border/90 px-3 py-3 dark:border-od-border">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-[0.06em] text-od-muted hover:text-od-text-soft dark:text-od-muted dark:hover:text-od-text"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSortColumn("status");
@@ -643,10 +684,10 @@ export default function AtivosView() {
                       ) : null}
                     </button>
                   </th>
-                  <th scope="col" className="whitespace-nowrap border-b border-zinc-200 px-2 py-2 dark:border-zinc-800">
+                  <th scope="col" className="whitespace-nowrap border-b border-od-border/90 px-3 py-3 dark:border-od-border">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      className="flex w-full items-center justify-start gap-1 text-left font-semibold uppercase tracking-[0.06em] text-od-muted hover:text-od-text-soft dark:text-od-muted dark:hover:text-od-text"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSortColumn("atualizadoEm");
@@ -662,22 +703,22 @@ export default function AtivosView() {
                       ) : null}
                     </button>
                   </th>
-                  <th scope="col" className="w-24 border-b border-zinc-200 px-2 py-2 text-right dark:border-zinc-800">
+                  <th scope="col" className="w-24 border-b border-od-border/90 px-3 py-3 text-right dark:border-od-border">
                     <span className="sr-only">Ações</span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
+              <tbody className="divide-y divide-od-border/35 bg-od-card dark:divide-od-border/45 dark:bg-od-bg">
                 {itensLista.map((row) => {
                   const { linha1, resp } = formatLocalizacao(row);
                   return (
                     <tr
                       key={row.id}
-                      className="group cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
+                      className="group cursor-pointer transition-colors hover:bg-od-surface-soft/90 dark:hover:bg-od-surface/40"
                       onClick={() => setPainel({ id: row.id, aba: "detalhes" })}
                     >
                       <td
-                        className={`px-2 py-1.5 ${!row.ativo ? "opacity-60" : ""}`}
+                        className={`px-3 py-2.5 align-middle ${!row.ativo ? "opacity-60" : ""}`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <input
@@ -685,51 +726,51 @@ export default function AtivosView() {
                           checked={selecionados.has(row.id)}
                           onChange={() => alternarSelecionado(row.id)}
                           aria-label={`Selecionar ${row.nome}`}
-                          className="size-3.5 rounded border-zinc-300 text-zinc-900 dark:border-zinc-600"
+                          className="size-3.5 rounded border-od-border-strong text-od-text dark:border-od-border-strong"
                         />
                       </td>
-                      <td className={`max-w-[220px] px-2 py-1.5 ${!row.ativo ? "opacity-60" : ""}`}>
-                        <div className="truncate font-medium text-zinc-900 dark:text-zinc-100">{row.nome}</div>
-                        <code className="mt-0.5 inline-block font-mono text-[11px] tabular-nums text-zinc-600 dark:text-zinc-400">
+                      <td className={`max-w-[220px] px-3 py-2.5 align-middle ${!row.ativo ? "opacity-60" : ""}`}>
+                        <div className="truncate font-medium text-od-text">{row.nome}</div>
+                        <code className="mt-0.5 inline-block font-mono text-[11px] tabular-nums text-od-muted">
                           {row.numeroPatrimonio}
                         </code>
                         {(row.marca || row.modelo) && (
-                          <div className="truncate text-[11px] text-zinc-500 dark:text-zinc-500">
+                          <div className="truncate text-[11px] text-od-muted">
                             {[row.marca, row.modelo].filter(Boolean).join(" · ")}
                           </div>
                         )}
                       </td>
-                      <td className={`px-2 py-1.5 text-zinc-700 dark:text-zinc-300 ${!row.ativo ? "opacity-60" : ""}`}>
+                      <td className={`px-3 py-2.5 align-middle text-od-text-soft ${!row.ativo ? "opacity-60" : ""}`}>
                         <span className="line-clamp-2">{row.categoria || "—"}</span>
                       </td>
-                      <td className={`max-w-[200px] px-2 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 ${!row.ativo ? "opacity-60" : ""}`}>
+                      <td className={`max-w-[200px] px-3 py-2.5 align-middle text-xs text-od-text-soft ${!row.ativo ? "opacity-60" : ""}`}>
                         {!linha1 && !resp ? (
                           "—"
                         ) : (
                           <>
                             {linha1 ? <div className="line-clamp-2">{linha1}</div> : null}
-                            {resp ? <div className="text-zinc-500 dark:text-zinc-500">Resp. {resp}</div> : null}
+                            {resp ? <div className="text-od-muted">Resp. {resp}</div> : null}
                           </>
                         )}
                       </td>
-                      <td className={`px-2 py-1.5 ${!row.ativo ? "opacity-60" : ""}`} onClick={(e) => e.stopPropagation()}>
+                      <td className={`px-3 py-2.5 align-middle ${!row.ativo ? "opacity-60" : ""}`} onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-wrap items-center gap-1">
                           <StatusAtivoBadge status={row.status} />
                           {!row.ativo ? (
-                            <span className="text-[10px] font-medium uppercase text-zinc-400">inativo</span>
+                            <span className="text-[10px] font-medium uppercase text-od-muted">inativo</span>
                           ) : null}
                         </div>
                       </td>
                       <td
-                        className={`whitespace-nowrap px-2 py-1.5 text-xs tabular-nums text-zinc-600 dark:text-zinc-400 ${!row.ativo ? "opacity-60" : ""}`}
+                        className={`whitespace-nowrap px-3 py-2.5 align-middle text-xs tabular-nums text-od-muted ${!row.ativo ? "opacity-60" : ""}`}
                       >
                         {formatAtualizado(row.atualizadoEm)}
                       </td>
-                      <td className="px-2 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="px-3 py-2.5 text-right align-middle" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 has-[:focus-visible]:opacity-100">
                           <button
                             type="button"
-                            className="rounded border border-transparent p-1.5 text-zinc-500 hover:border-zinc-200 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                            className="rounded-lg border border-transparent p-1.5 text-od-muted transition-colors hover:border-od-border hover:bg-od-surface-muted hover:text-od-text dark:hover:border-od-border-strong dark:hover:bg-od-surface-muted dark:hover:text-od-text"
                             aria-label="Editar"
                             onClick={() => setPainel({ id: row.id, aba: "editar" })}
                           >
@@ -738,7 +779,7 @@ export default function AtivosView() {
                           {row.ativo ? (
                             <button
                               type="button"
-                              className="rounded border border-transparent p-1.5 text-zinc-500 hover:border-red-200 hover:bg-red-50 hover:text-red-700 dark:hover:border-red-900 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                              className="rounded-lg border border-transparent p-1.5 text-od-muted transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 dark:hover:border-red-900 dark:hover:bg-red-950/50 dark:hover:text-red-400"
                               aria-label="Inativar"
                               onClick={() => handleInativar(row)}
                             >
@@ -756,14 +797,14 @@ export default function AtivosView() {
         </div>
 
         {meta && !erro ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 bg-zinc-50 px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900/40">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="text-zinc-600 dark:text-zinc-400">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-od-border/90 bg-od-surface-soft/80 px-4 py-3.5 text-sm dark:border-od-border dark:bg-od-surface/35">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <span className="text-sm font-medium text-od-text">
                 Página {meta.page} de {totalPaginas}
               </span>
-              <span className="tabular-nums text-xs text-zinc-500 dark:text-zinc-500">{intervaloTexto}</span>
-              <label className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300">
-                <span className="whitespace-nowrap text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <span className="tabular-nums text-xs text-od-muted">{intervaloTexto}</span>
+              <label className="flex items-center gap-2 text-sm text-od-text-soft">
+                <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-od-muted">
                   Ir para
                 </span>
                 <input
@@ -779,18 +820,18 @@ export default function AtivosView() {
                     setIrPaginaTexto("");
                   }}
                   placeholder={`1–${totalPaginas}`}
-                  className="w-16 border border-zinc-200 bg-white px-1.5 py-1 text-center text-sm tabular-nums dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                  className="w-16 rounded-lg border border-od-border bg-od-card px-2 py-1.5 text-center text-sm tabular-nums shadow-sm focus:border-od-border-strong focus:outline-none focus:ring-2 focus:ring-od-text/10 dark:border-od-border-strong dark:bg-od-bg dark:text-od-text dark:focus:ring-od-text/10"
                   aria-label="Ir para página"
                 />
               </label>
-              <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <label className="flex items-center gap-2 text-sm text-od-text-soft">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-od-muted">
                   Por página
                 </span>
                 <select
                   value={limitePagina}
                   onChange={(e) => setLimitePagina(Number(e.target.value))}
-                  className="border border-zinc-200 bg-white py-1 pl-2 pr-6 text-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                  className="rounded-lg border border-od-border bg-od-card py-1.5 pl-2.5 pr-8 text-sm shadow-sm focus:border-od-border-strong focus:outline-none focus:ring-2 focus:ring-od-text/10 dark:border-od-border-strong dark:bg-od-bg dark:text-od-text dark:focus:ring-od-text/10"
                 >
                   {LIMITES_PAGINA.map((n) => (
                     <option key={n} value={n}>
@@ -805,16 +846,16 @@ export default function AtivosView() {
                 type="button"
                 disabled={exportando}
                 onClick={handleExportCsv}
-                className="inline-flex items-center gap-1.5 border border-zinc-200 bg-white px-3 py-1 text-sm font-medium disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-od-border bg-od-card px-3.5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-od-surface-soft disabled:opacity-50 dark:border-od-border-strong dark:bg-od-bg dark:text-od-text dark:hover:bg-od-surface"
               >
                 <Download className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
                 {exportando ? "Exportando…" : "Exportar CSV"}
               </button>
-              <div className="flex gap-1">
+              <div className="flex gap-1.5">
                 <button
                   type="button"
                   disabled={pagina <= 1}
-                  className="border border-zinc-200 bg-white px-3 py-1 text-sm disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                  className="rounded-lg border border-od-border bg-od-card px-3.5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-od-surface-soft disabled:opacity-40 dark:border-od-border-strong dark:bg-od-bg dark:text-od-text dark:hover:bg-od-surface"
                   onClick={() => setPagina((p) => Math.max(1, p - 1))}
                 >
                   Anterior
@@ -822,7 +863,7 @@ export default function AtivosView() {
                 <button
                   type="button"
                   disabled={pagina >= totalPaginas}
-                  className="border border-zinc-200 bg-white px-3 py-1 text-sm disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                  className="rounded-lg border border-od-border bg-od-card px-3.5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-od-surface-soft disabled:opacity-40 dark:border-od-border-strong dark:bg-od-bg dark:text-od-text dark:hover:bg-od-surface"
                   onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
                 >
                   Próxima
@@ -834,20 +875,21 @@ export default function AtivosView() {
       </div>
 
       {selecionados.size > 0 ? (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white/95 px-4 py-3 shadow-[0_-1px_0_0_rgb(0_0_0/0.06)] backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
-          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
-            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-              {selecionados.size} selecionado{selecionados.size === 1 ? "" : "s"} nesta página
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-od-border/90 bg-od-card/95 px-4 py-3.5 shadow-[0_-4px_24px_-4px_rgb(0_0_0/0.08)] backdrop-blur-md dark:border-od-border dark:bg-od-bg/95">
+          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4">
+            <span className="text-sm font-medium text-od-text">
+              <span className="tabular-nums">{selecionados.size}</span>{" "}
+              {selecionados.size === 1 ? "item selecionado" : "itens selecionados"} nesta página
               {ativosSelecionadosNaPagina > BULK_MAX_IDS ? (
                 <span className="mt-1 block text-xs font-normal text-amber-700 dark:text-amber-400">
                   Limite de inativação em lote: {BULK_MAX_IDS} itens ativos. Reduza a seleção.
                 </span>
               ) : null}
             </span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200"
+                className="rounded-lg border border-od-border-strong bg-od-card px-3.5 py-2 text-sm font-medium text-od-text-soft shadow-sm transition-colors hover:bg-od-surface-soft dark:border-od-border-strong dark:bg-od-surface dark:text-od-text dark:hover:bg-od-surface-muted"
                 onClick={() => setSelecionados(new Set())}
               >
                 Limpar seleção
@@ -855,7 +897,7 @@ export default function AtivosView() {
               <button
                 type="button"
                 disabled={bulkInativarBloqueado}
-                className="border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-800 disabled:cursor-not-allowed disabled:opacity-45 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-sm font-medium text-red-800 shadow-sm transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-45 dark:border-red-900/80 dark:bg-red-950/50 dark:text-red-300 dark:hover:bg-red-950/70"
                 onClick={handleBulkInativar}
               >
                 Inativar selecionados

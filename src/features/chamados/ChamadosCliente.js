@@ -1,11 +1,11 @@
 import { useAuth } from "@/contexts/authContext";
-import { useChamadosQuery } from "@/hooks/useChamadosQueries";
+import { useChamadosQuery } from "@/features/chamados/useChamadosQueries";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, EmptyState, Input, PageHeader, SkeletonCard } from "@/components/ui";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import ChamadoConversationModal from "@/components/chamados/ChamadoConversationModal";
+import ChamadoConversationModal from "@/features/chamados/ChamadoConversationModal";
 import {
   PRIORIDADE_LABEL,
   STATUS_FECHADOS,

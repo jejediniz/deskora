@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import {
   useChamadosMetricsQuery,
   useChamadosQuery
-} from "@/hooks/useChamadosQueries";
+} from "@/features/chamados/useChamadosQueries";
 import { useAuth } from "@/contexts/authContext";
 import { isStatusFechado } from "@/constants/chamados";
 

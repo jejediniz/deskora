@@ -4,10 +4,10 @@ import { useToast } from "@/contexts/toastContext";
 import {
   useInteracoesChamado,
   useCriarInteracaoMutation
-} from "@/hooks/useChamadosQueries";
+} from "./useChamadosQueries";
 import { PRIORIDADE_LABEL, STATUS_LABEL } from "@/constants/chamados";
 import { formatDate } from "@/utils/formatters";
-import { Button, Textarea } from "../ui";
+import { Button, Textarea } from "@/components/ui";
 
 function getAutorPerfil(autor) {
   if (!autor) return "Sistema";
@@ -69,9 +69,13 @@ export default function ChamadoConversationModal({
   useEffect(() => {
     if (!open || !timelineRef.current) return;
 
+    const reducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
     timelineRef.current.scrollTo({
       top: timelineRef.current.scrollHeight,
-      behavior: "smooth",
+      behavior: reducedMotion ? "auto" : "smooth",
     });
   }, [interacoes, open]);
 
@@ -142,6 +146,7 @@ export default function ChamadoConversationModal({
         className="conversation-modal"
         role="dialog"
         aria-modal="true"
+        aria-busy={loading || saving}
         aria-labelledby="conversation-title"
         onClick={(event) => event.stopPropagation()}
       >

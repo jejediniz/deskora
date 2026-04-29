@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Input } from "./ui";
+import { Button, Input } from "@/components/ui";
 import { alterarMinhaSenha } from "@/services/api/usuariosApi";
 import { useToast } from "@/contexts/toastContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";

@@ -9,9 +9,11 @@ import AtivoForm from "./AtivoForm";
 
 function DetalheLinha({ rotulo, valor }) {
   return (
-    <div className="grid grid-cols-[7.5rem_1fr] gap-x-3 gap-y-1 border-b border-zinc-100 py-2.5 text-sm last:border-0 dark:border-zinc-800/80">
-      <dt className="shrink-0 font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{rotulo}</dt>
-      <dd className="min-w-0 break-words text-zinc-900 dark:text-zinc-100">{valor ?? "—"}</dd>
+    <div className="grid grid-cols-[minmax(0,7.5rem)_1fr] gap-x-4 gap-y-0.5 border-b border-od-border/40/90 py-3 text-sm last:border-0 dark:border-od-border/70">
+      <dt className="shrink-0 pt-0.5 text-[11px] font-semibold uppercase tracking-wide text-od-muted">
+        {rotulo}
+      </dt>
+      <dd className="min-w-0 break-words font-medium leading-snug text-od-text">{valor ?? "—"}</dd>
     </div>
   );
 }
@@ -72,30 +74,31 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
       className="fixed inset-0 z-[100] flex justify-end"
       role="dialog"
       aria-modal="true"
+      aria-busy={carregando}
       aria-labelledby="patrimonio-slide-titulo"
     >
       <button
         type="button"
-        className="absolute inset-0 bg-zinc-950/45 transition-opacity duration-200 dark:bg-black/55"
+        className="absolute inset-0 bg-black/45 transition-opacity duration-200 dark:bg-black/60"
         aria-label="Fechar painel"
         onClick={onClose}
       />
       <div
-        className="relative flex h-full w-full max-w-[26rem] flex-col border-l border-zinc-200 bg-white shadow-[inset_1px_0_0_0_rgb(0_0_0/0.03)] transition-transform duration-200 ease-out dark:border-zinc-800 dark:bg-zinc-950 sm:max-w-md md:max-w-lg"
+        className="relative flex h-full w-full max-w-[26rem] flex-col overflow-hidden border-l border-od-border/90 bg-od-card shadow-2xl shadow-od-text/10 dark:border-od-border dark:bg-od-bg sm:max-w-md md:max-w-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-od-border/40 bg-gradient-to-b from-od-surface-soft/95 to-od-card px-4 py-4 dark:border-od-border dark:from-od-surface/80 dark:to-od-bg">
           <div className="min-w-0 flex-1">
-            <p className="truncate font-mono text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+            <p className="truncate font-mono text-[11px] tabular-nums tracking-tight text-od-muted">
               {ativo?.numeroPatrimonio ?? "…"}
             </p>
-            <h2 id="patrimonio-slide-titulo" className="truncate text-base font-semibold text-zinc-900 dark:text-zinc-50">
+            <h2 id="patrimonio-slide-titulo" className="mt-0.5 truncate text-lg font-semibold tracking-tight text-od-text">
               {carregando ? "Carregando…" : ativo?.nome ?? "Patrimônio"}
             </h2>
           </div>
           <button
             type="button"
-            className="rounded border border-transparent p-1.5 text-zinc-500 transition-colors hover:border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+            className="rounded-xl border border-transparent p-2 text-od-muted transition-colors hover:border-od-border hover:bg-od-surface-muted hover:text-od-text dark:hover:border-od-border-strong dark:hover:bg-od-surface dark:hover:text-od-text"
             onClick={onClose}
             aria-label="Fechar"
           >
@@ -103,13 +106,13 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
           </button>
         </header>
 
-        <div className="flex shrink-0 gap-0 border-b border-zinc-200 px-2 dark:border-zinc-800">
+        <div className="flex shrink-0 gap-1 border-b border-od-border/40 bg-od-surface-soft/60 px-3 py-1.5 dark:border-od-border dark:bg-od-surface/40">
           <button
             type="button"
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               aba === "detalhes"
-                ? "border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-50"
-                : "border-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                ? "bg-od-card text-od-text shadow-sm ring-1 ring-od-border/80 dark:bg-od-surface-muted dark:text-od-text dark:ring-od-border-strong"
+                : "text-od-muted hover:bg-od-card/70 hover:text-od-text dark:text-od-muted dark:hover:bg-od-surface-muted/60 dark:hover:text-od-text"
             }`}
             onClick={() => setAba("detalhes")}
           >
@@ -119,10 +122,10 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
           <button
             type="button"
             disabled={!ativo || !!erro}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors disabled:opacity-40 ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-40 ${
               aba === "editar"
-                ? "border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-50"
-                : "border-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                ? "bg-od-card text-od-text shadow-sm ring-1 ring-od-border/80 dark:bg-od-surface-muted dark:text-od-text dark:ring-od-border-strong"
+                : "text-od-muted hover:bg-od-card/70 hover:text-od-text dark:text-od-muted dark:hover:bg-od-surface-muted/60 dark:hover:text-od-text"
             }`}
             onClick={() => setAba("editar")}
           >
@@ -141,18 +144,20 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
               {carregando || !ativo ? (
                 <ul className="space-y-2" aria-hidden>
                   {Array.from({ length: 8 }).map((_, i) => (
-                    <li key={i} className="h-10 animate-pulse rounded bg-zinc-100 dark:bg-zinc-900" />
+                    <li key={i} className="h-10 animate-pulse rounded bg-od-surface-muted dark:bg-od-surface" />
                   ))}
                 </ul>
               ) : (
                 <>
-                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                  <div className="mb-5 flex flex-wrap items-center gap-2">
                     <StatusAtivoBadge status={ativo.status} />
                     {!ativo.ativo ? (
-                      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">Inativado</span>
+                      <span className="rounded-md bg-od-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-od-muted dark:bg-od-surface-muted dark:text-od-muted">
+                        Inativado
+                      </span>
                     ) : null}
                   </div>
-                  <dl>
+                  <dl className="rounded-xl border border-od-border/40 bg-od-surface-soft/40 px-3 dark:border-od-border/80 dark:bg-od-surface/25">
                     <DetalheLinha rotulo="Série" valor={ativo.numeroSerie} />
                     <DetalheLinha rotulo="Categoria" valor={ativo.categoria} />
                     <DetalheLinha rotulo="Marca" valor={ativo.marca} />
@@ -173,12 +178,12 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
               <div className="p-4">
                 <ul className="space-y-2" aria-hidden>
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <li key={i} className="h-12 animate-pulse rounded bg-zinc-100 dark:bg-zinc-900" />
+                    <li key={i} className="h-12 animate-pulse rounded bg-od-surface-muted dark:bg-od-surface" />
                   ))}
                 </ul>
               </div>
             ) : (
-              <div className="border-t border-zinc-100 p-4 dark:border-zinc-800/80">
+              <div className="p-4 dark:border-od-border/80">
                 <AtivoForm
                   modo="editar"
                   ativoId={ativo.id}

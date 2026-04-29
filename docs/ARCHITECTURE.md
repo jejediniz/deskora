@@ -9,12 +9,13 @@ app/                    Rotas Next.js: páginas finas + route handlers HTTP
   (app)/**/page.jsx       Importa telas de src/features/* (composição mínima)
   api/**/route.js         Orquestração: autentica valida entrada → chama src/server
 
-src/features/           Interface por domínio (telas, hooks de tela, fluxo do usuário)
+src/features/           Interface por domínio (telas, modais só daquele domínio, React Query do domínio)
+  */use*Queries.js       TanStack Query relacionado ao domínio (ex.: chamados)
   *                       Não acessa banco diretamente; usa services/api e contexts
 
-src/components/         UI reutilizável (ui, layout, auth, domínio pontual)
+src/components/         UI reutilizável: ui/, layout/, auth guard (cross-cutting)
 src/contexts/           Estado global React (sessão, tema, toasts, etc.)
-src/hooks/              Hooks genéricos e React Query agregado
+src/hooks/              Hooks genéricos (debounce, focus trap, etc.) — não React Query por domínio
 src/services/api/       Cliente HTTP (fetch) para a API interna (/api/*)
 src/constants/          Rótulos, mapas de status e constantes de domínio (front)
 src/utils/              Formatadores e helpers sem efeitos colaterais
@@ -40,6 +41,11 @@ src/server/             Código **só Node** usado por app/api e por scripts int
 - **Páginas** em `app/` não devem crescer com lógica pesada; prefira `src/features/<domínio>/`.
 - **Telas grandes:** preferir um hook de orquestração no mesmo domínio (ex.: `features/chamados/useChamadosGestao.js` usado por `Chamados.js`) para manter o componente focado em JSX.
 - **Componentes genéricos** em `src/components/ui/`; shell do app em `src/components/layout/`.
+- **Componentes e hooks específicos de um domínio** em `src/features/<domínio>/` (não criar `src/components/<domínio>/` só para telas dessa área).
+
+## Bibliotecas e utilitários
+
+- **`src/lib/`** integrações pontuais (ex.: cliente Prisma). **`src/utils/`** funções puras sem IO.
 
 ## Onde procurar por funcionalidade
 

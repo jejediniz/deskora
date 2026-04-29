@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
+import { Package } from "lucide-react";
 import {
   STATUS_ATIVO_LABEL,
   CATEGORIAS_ATIVO_SUGESTOES,
 } from "@/constants/ativos";
 import { criarAtivo, atualizarAtivo } from "@/services/api/ativosApi";
-import { Button, Card, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { Button, Card, Input, Select, Textarea } from "@/components/ui";
 import { useToast } from "@/contexts/toastContext";
 
 export function emptyAtivoForm() {
@@ -161,35 +162,69 @@ export default function AtivoForm({
     }
   }
 
+  const cardShell =
+    "form-section patrimonio-card rounded-2xl border-od-border/90 bg-od-card shadow-sm dark:border-od-border dark:bg-od-bg " +
+    (embedded ? "!p-4" : "");
+
   return (
-    <div className={embedded ? "patrimonio-form-embedded" : "anim-fade-stack patrimonio-form-page"}>
+    <div
+      className={
+        embedded
+          ? "patrimonio-form-embedded"
+          : "anim-fade-stack mx-auto max-w-[920px] px-4 pb-20 pt-4 text-od-text"
+      }
+    >
       {!embedded && (
         <>
-          <PageHeader
-            title={titulo}
-            subtitle="Controle interno: o que entra no patrimônio da empresa e para qual setor ou local o bem é destinado. Não há venda nem valores financeiros aqui."
-            actions={
-              <Link href="/ativos" className="btn btn-secondary btn-md">
-                Voltar à lista
-              </Link>
-            }
-          />
+          <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex gap-4">
+              <div
+                className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-od-text to-od-bg text-white shadow-lg shadow-od-text/25 dark:from-od-surface-soft dark:to-od-border/40 dark:text-od-text dark:shadow-none sm:flex"
+                aria-hidden
+              >
+                <Package className="size-7" strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-od-muted">
+                  Inventário corporativo
+                </p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-od-text [font-family:var(--font-display)]">
+                  {titulo}
+                </h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-od-muted">
+                  Controle interno do que entra no patrimônio e para qual setor ou local o bem é destinado. Sem venda nem
+                  valores financeiros.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/ativos"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-od-border bg-od-card px-4 text-sm font-medium text-od-text-soft shadow-sm transition-colors hover:bg-od-surface-soft dark:border-od-border-strong dark:bg-od-surface dark:text-od-text dark:hover:bg-od-surface-muted"
+            >
+              Voltar à lista
+            </Link>
+          </header>
 
-          <p className="patrimonio-scope-note">
-            Use <strong>setor</strong>, <strong>localização</strong> e <strong>responsável</strong> quando o bem sair do
-            estoque geral ou for alocado a uma área ou pessoa, sempre dentro da sua empresa.
-          </p>
+          <div className="mb-6 rounded-xl border border-od-border/90 bg-od-surface-soft/80 px-4 py-3 text-sm leading-relaxed text-od-text-soft dark:border-od-border dark:bg-od-surface/40 dark:text-od-text-soft">
+            Use <strong className="font-semibold text-od-text">setor</strong>,{" "}
+            <strong className="font-semibold text-od-text">localização</strong> e{" "}
+            <strong className="font-semibold text-od-text">responsável</strong> quando o bem sair do
+            estoque geral ou for alocado a uma área ou pessoa, sempre dentro da empresa.
+          </div>
         </>
       )}
 
       {erroBase && (
-        <div className="alert alert-error" role="alert">
+        <div
+          className="mb-4 rounded-xl border border-red-200/90 bg-red-50/95 px-4 py-3 text-sm text-red-800 dark:border-red-900/40 dark:bg-red-950/35 dark:text-red-200"
+          role="alert"
+        >
           {erroBase}
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="ativos-form" noValidate>
-        <Card className="form-section patrimonio-card">
+      <form onSubmit={onSubmit} className={`ativos-form ${embedded ? "gap-4" : ""}`} noValidate>
+        <Card className={cardShell}>
           <h3 className="form-section__eyebrow">1 · Identificação do bem</h3>
           <p className="form-section__hint patrimonio-card__hint">
             Dados que identificam o item no inventário (patrimônio, série, tipo).
@@ -246,7 +281,7 @@ export default function AtivoForm({
           </div>
         </Card>
 
-        <Card className="form-section patrimonio-card">
+        <Card className={cardShell}>
           <h3 className="form-section__eyebrow">2 · Situação atual</h3>
           <p className="form-section__hint patrimonio-card__hint">
             Situação operacional do bem (disponível, em uso por um setor, manutenção, etc.).
@@ -268,7 +303,7 @@ export default function AtivoForm({
           />
         </Card>
 
-        <Card className="form-section patrimonio-card">
+        <Card className={cardShell}>
           <h3 className="form-section__eyebrow">3 · Onde está na empresa</h3>
           <p className="form-section__hint patrimonio-card__hint">
             Destino interno quando o bem deixa o estoque geral ou muda de lugar — não é venda nem saída
@@ -299,7 +334,7 @@ export default function AtivoForm({
           </div>
         </Card>
 
-        <Card className="form-section patrimonio-card">
+        <Card className={cardShell}>
           <h3 className="form-section__eyebrow">4 · Observações</h3>
           <p className="form-section__hint patrimonio-card__hint">
             Informações livres sobre o histórico do bem dentro da empresa.
@@ -313,19 +348,26 @@ export default function AtivoForm({
           />
         </Card>
 
-        <div className="form-actions form-actions--split patrimonio-form-actions">
-          <Button type="submit" disabled={enviando}>
-            {enviando ? "Salvando…" : "Salvar registro"}
-          </Button>
+        <div className="patrimonio-form-actions flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           {embedded ? (
-            <button type="button" className="btn btn-ghost btn-md" onClick={() => onCancelEdit?.()}>
+            <button
+              type="button"
+              className="inline-flex h-11 items-center justify-center rounded-xl px-4 text-sm font-medium text-od-muted transition-colors hover:bg-od-surface-muted hover:text-od-text dark:text-od-muted dark:hover:bg-od-surface-muted dark:hover:text-od-text"
+              onClick={() => onCancelEdit?.()}
+            >
               Voltar aos detalhes
             </button>
           ) : (
-            <Link href="/ativos" className="btn btn-ghost btn-md">
+            <Link
+              href="/ativos"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-od-border bg-od-card px-4 text-sm font-medium text-od-text-soft shadow-sm transition-colors hover:bg-od-surface-soft dark:border-od-border-strong dark:bg-od-surface dark:text-od-text dark:hover:bg-od-surface-muted"
+            >
               Cancelar
             </Link>
           )}
+          <Button type="submit" disabled={enviando} className="btn-md !rounded-xl">
+            {enviando ? "Salvando…" : "Salvar registro"}
+          </Button>
         </div>
       </form>
     </div>

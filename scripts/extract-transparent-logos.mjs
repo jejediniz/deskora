@@ -41,7 +41,7 @@ async function writePngFromRgba(out, w, h, destPath) {
     .toFile(destPath);
 
   const meta = await sharp(destPath).metadata();
-  console.log("wrote", path.relative(root, destPath), `${meta.width}x${meta.height}`);
+  console.info("wrote", path.relative(root, destPath), `${meta.width}x${meta.height}`);
 }
 
 /**
@@ -142,7 +142,7 @@ async function main() {
     await removeLightBackground(symbolLightSrc, symbolOut, { lo: 5, hi: 36 });
     const iconDest = path.join(root, "app", "icon.png");
     await fs.promises.copyFile(symbolOut, iconDest);
-    console.log("wrote", path.relative(root, iconDest));
+    console.info("wrote", path.relative(root, iconDest));
   } else {
     console.warn("skip (missing):", symbolLightSrc);
   }

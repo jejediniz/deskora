@@ -8,22 +8,16 @@ import {
   excluirChamado,
   obterMetricasChamados
 } from "@/services/api/chamadosApi";
-import {
-  listarUsuarios,
-  listarTecnicos,
-  criarUsuario,
-  excluirUsuario
-} from "@/services/api/usuariosApi";
+import { listarTecnicos } from "@/services/api/usuariosApi";
 
 export const CHAMADOS_QUERY_KEY = ["chamados"];
+export const TECNICOS_QUERY_KEY = ["usuarios", "tecnicos"];
 export const CHAMADOS_METRICS_QUERY_KEY = ["chamados", "metrics"];
 export const INTERACOES_QUERY_KEY = (chamadoId) => [
   "chamados",
   "interacoes",
   String(chamadoId)
 ];
-export const USUARIOS_QUERY_KEY = ["usuarios"];
-export const TECNICOS_QUERY_KEY = ["usuarios", "tecnicos"];
 
 const CHAMADOS_PREFIX = { queryKey: CHAMADOS_QUERY_KEY };
 
@@ -57,6 +51,14 @@ export function useChamadosMetricsQuery({ enabled = true } = {}) {
     queryFn: obterMetricasChamados,
     enabled,
     staleTime: 30_000
+  });
+}
+
+export function useTecnicosQuery({ enabled = true } = {}) {
+  return useQuery({
+    queryKey: TECNICOS_QUERY_KEY,
+    queryFn: listarTecnicos,
+    enabled
   });
 }
 
@@ -138,43 +140,5 @@ export function useExcluirChamadoMutation() {
     },
     onError: (_err, _vars, context) => restaurarSnapshots(queryClient, context?.snapshots),
     onSettled: () => invalidarChamados(queryClient)
-  });
-}
-
-export function useUsuariosQuery({ enabled = true } = {}) {
-  return useQuery({
-    queryKey: USUARIOS_QUERY_KEY,
-    queryFn: listarUsuarios,
-    enabled
-  });
-}
-
-export function useTecnicosQuery({ enabled = true } = {}) {
-  return useQuery({
-    queryKey: TECNICOS_QUERY_KEY,
-    queryFn: listarTecnicos,
-    enabled
-  });
-}
-
-export function useCriarUsuarioMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: criarUsuario,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USUARIOS_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: TECNICOS_QUERY_KEY });
-    }
-  });
-}
-
-export function useExcluirUsuarioMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: excluirUsuario,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USUARIOS_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: TECNICOS_QUERY_KEY });
-    }
   });
 }

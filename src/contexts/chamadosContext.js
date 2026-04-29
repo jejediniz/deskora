@@ -3,7 +3,7 @@ import {
   useAtualizarChamadoMutation,
   useCriarChamadoMutation,
   useExcluirChamadoMutation
-} from "@/hooks/useChamadosQueries";
+} from "@/features/chamados/useChamadosQueries";
 
 const ChamadosContext = createContext(null);
 

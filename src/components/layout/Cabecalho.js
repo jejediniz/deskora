@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/authContext";
 import AlternarTema from "./AlternarTema";
-import AlterarSenhaModal from "../AlterarSenhaModal";
+import AlterarSenhaModal from "@/features/auth/AlterarSenhaModal";
 
 export default function Cabecalho() {
   const { estaAutenticado, logout, usuario } = useAuth();

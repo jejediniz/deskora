@@ -5,7 +5,7 @@ import {
   useChamadosQuery,
   useExcluirChamadoMutation,
   useTecnicosQuery
-} from "@/hooks/useChamadosQueries";
+} from "@/features/chamados/useChamadosQueries";
 import { STATUS_FECHADOS } from "@/constants/chamados";
 import { useChamadosMenuControl } from "./useChamadosMenuControl";
 import { useChamadoFiltros } from "./useChamadoFiltros";
