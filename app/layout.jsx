@@ -1,20 +1,20 @@
 import "./globals.css";
 import "../src/styles/index.css";
-import Providers from "./providers";
+import AppProviders from "@/providers/AppProviders";
 import { Outfit, Source_Sans_3 } from "next/font/google";
 
 const outfit = Outfit({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   display: "swap",
-  variable: "--font-outfit",
+  variable: "--font-outfit"
 });
 
 const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
-  variable: "--font-source-sans",
+  variable: "--font-source-sans"
 });
 
 export const metadata = {
@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <body>
-        <Providers>{children}</Providers>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

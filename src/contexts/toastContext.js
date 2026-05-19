@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 
 const ToastContext = createContext(null);
@@ -18,23 +20,26 @@ export function ToastProvider({ children }) {
     setToasts((current) => current.filter((toast) => toast.id !== id));
   }, []);
 
-  const pushToast = useCallback((message, options = {}) => {
-    const id = ++toastId;
-    const toast = {
-      id,
-      message,
-      type: options.type || "info",
-      title: options.title || null,
-      duration: options.duration ?? 3200,
-    };
+  const pushToast = useCallback(
+    (message, options = {}) => {
+      const id = ++toastId;
+      const toast = {
+        id,
+        message,
+        type: options.type || "info",
+        title: options.title || null,
+        duration: options.duration ?? 3200
+      };
 
-    setToasts((current) => [...current, toast]);
+      setToasts((current) => [...current, toast]);
 
-    if (toast.duration > 0) {
-      const timer = window.setTimeout(() => removeToast(id), toast.duration);
-      timersRef.current.set(id, timer);
-    }
-  }, [removeToast]);
+      if (toast.duration > 0) {
+        const timer = window.setTimeout(() => removeToast(id), toast.duration);
+        timersRef.current.set(id, timer);
+      }
+    },
+    [removeToast]
+  );
 
   const api = useMemo(
     () => ({
@@ -42,7 +47,7 @@ export function ToastProvider({ children }) {
       success: (message, options) => pushToast(message, { ...options, type: "success" }),
       error: (message, options) => pushToast(message, { ...options, type: "error" }),
       info: (message, options) => pushToast(message, { ...options, type: "info" }),
-      remove: removeToast,
+      remove: removeToast
     }),
     [pushToast, removeToast]
   );

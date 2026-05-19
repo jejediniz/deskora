@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuth } from "@/contexts/authContext";
 import { useChamadosQuery } from "@/features/chamados/useChamadosQueries";
 import { useMemo, useState } from "react";
@@ -37,13 +39,10 @@ export default function ChamadosCliente() {
     page: 1,
     limit: 100,
     q: filtroTextoDebounced || undefined,
-    tecnicoId,
+    tecnicoId
   });
 
-  const chamados = useMemo(
-    () => chamadosQuery.data?.items ?? [],
-    [chamadosQuery.data]
-  );
+  const chamados = useMemo(() => chamadosQuery.data?.items ?? [], [chamadosQuery.data]);
   const carregando = chamadosQuery.isLoading;
   const erro = chamadosQuery.error?.message;
 
@@ -97,9 +96,7 @@ export default function ChamadosCliente() {
               <button
                 key={filtro.value}
                 type="button"
-                className={`filtro-btn ${
-                  statusFiltro === filtro.value ? "ativo" : ""
-                }`}
+                className={`filtro-btn ${statusFiltro === filtro.value ? "ativo" : ""}`}
                 onClick={() => setStatusFiltro(filtro.value)}
               >
                 {filtro.label}
@@ -127,8 +124,8 @@ export default function ChamadosCliente() {
           </div>
         </div>
 
-        {filteredChamados.length === 0 && (
-          buscaAtiva ? (
+        {filteredChamados.length === 0 &&
+          (buscaAtiva ? (
             <EmptyState
               title="Nenhum chamado encontrado"
               description="Ajuste a busca ou o status selecionado para encontrar seus atendimentos."
@@ -145,8 +142,7 @@ export default function ChamadosCliente() {
               actionLabel="Abrir meu primeiro chamado"
               onAction={() => router.push("/abrir-chamado")}
             />
-          )
-        )}
+          ))}
 
         <div className="cliente-list">
           {filteredChamados.map((c) => (
@@ -155,10 +151,7 @@ export default function ChamadosCliente() {
                 <span className={`status status-${c.status}`}>
                   {STATUS_LABEL[c.status] || c.status}
                 </span>
-                <span
-                  className="data"
-                  title={formatDateTime(c.updated_at || c.created_at)}
-                >
+                <span className="data" title={formatDateTime(c.updated_at || c.created_at)}>
                   Atualizado {formatRelative(c.updated_at || c.created_at)}
                 </span>
               </div>
@@ -182,9 +175,7 @@ export default function ChamadosCliente() {
                 </div>
               </div>
 
-              {c.descricao && (
-                <p className="obs">{c.descricao}</p>
-              )}
+              {c.descricao && <p className="obs">{c.descricao}</p>}
 
               <div className="cliente-meta">
                 {c.setor && (
@@ -210,11 +201,7 @@ export default function ChamadosCliente() {
               </div>
 
               <div className="cliente-card__actions">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setChamadoAtivo(c)}
-                >
+                <Button variant="secondary" size="sm" onClick={() => setChamadoAtivo(c)}>
                   Abrir conversa
                 </Button>
               </div>

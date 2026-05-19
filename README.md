@@ -52,59 +52,40 @@ Detalhes adicionais de segurança e endpoints permanecem alinhados à implementa
 
 Para uma visão de **camadas e responsabilidades** (onde colocar código novo), veja [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Estrutura de pastas
+## Estrutura do projeto
 
-```
-proxy.js                 Boundary de rede Next.js (valida JWT antes do painel)
-app/                     Rotas Next.js: páginas (UI) e route handlers (`app/api/`)
-src/
-  features/              Telas e lógica de interface por domínio (composição de páginas)
-    dashboard/             Início / métricas / painéis do dashboard
-    chamados/              Lista de chamados (admin/TI e fluxo do cliente), formulários rápidos, hooks de tela
-    ativos/                Patrimônio / ativos (views e formulários)
-    usuarios/               Listagem e criação de usuários
-    auth/                   Tela de login
-    common/                 Páginas compartilhadas (ex.: não encontrado)
-  components/
-    ui/                     Componentes genéricos (botão, card, input, skeleton…)
-    layout/                 Shell: cabeçalho, rodapé, container, protected shell, tema, atalhos
-    auth/                   Controle de papel na UI (ex.: `RoleGuard`)
-    chamados/               Componentes específicos de chamados reutilizáveis (ex.: modal de conversa)
-  contexts/                 React contexts (auth, chamados, tema, toast, confirmação, query)
-  hooks/                    Hooks reutilizáveis (queries, debounce, focus trap, etc.)
-  services/api/             Cliente HTTP (`http.js`) e funções que chamam a API REST (`*Api.js`)
-  server/                   Camada de servidor usada pelas rotas `app/api/*`:
-    config/                 `env`, `database` (pool `pg`)
-    http/                   response, auth, cookies, request
-    auth/policies.js        Autorização centralizada
-    services/               Regras de negócio
-    repositories/           Acesso a dados (SQL via `pg`; ativos também via Prisma)
-    validators/             Schemas Joi
-    utils/                  logger, AppError, rate limit
-  constants/                Rótulos, filtros e constantes de domínio (chamados, ativos)
-  lib/                      Singleton Prisma (`prisma.js`)
-  utils/                    Formatadores e helpers de front
-  styles/                   CSS global complementar (importado pelo `app/layout.jsx`)
-prisma/                     `schema.prisma` (Prisma; usado principalmente em ativos)
-db/
-  migrations/               Fonte da verdade do schema (node-pg-migrate)
-  schema.sql                Snapshot de referência humana (não executado automaticamente)
-tests/                      Testes Vitest (servidor)
-```
+O README mantém apenas o mapa de entrada. O detalhamento de cada pasta, arquivo e limite arquitetural fica em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-Alias TypeScript/JavaScript: `@/*` → `src/*`, `@server/*` → `src/server/*`, `@app/*` → `app/*`.
+| Caminho             | Responsabilidade principal                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `app/`              | Rotas do Next.js: páginas, layouts, estados de loading/erro e route handlers em `app/api/`.                      |
+| `src/features/`     | Telas e lógica de interface por domínio: dashboard, chamados, ativos, usuários e autenticação.                   |
+| `src/components/`   | Componentes reutilizáveis de UI, layout e controle visual de permissão.                                          |
+| `src/contexts/`     | Estado global React: sessão, tema, toasts, confirmação, query e chamados.                                        |
+| `src/providers/`    | Composição dos providers globais usada pelo layout raiz.                                                         |
+| `src/services/api/` | Cliente HTTP usado pelo frontend para chamar `/api/*`.                                                           |
+| `src/server/`       | Código server-only usado pelas APIs: services, repositories, validators, autenticação, HTTP, banco, logs e erro. |
+| `db/`               | Migrações oficiais do banco e snapshot SQL de referência.                                                        |
+| `prisma/`           | Schema Prisma usado principalmente na área de ativos.                                                            |
+| `tests/`            | Testes Vitest, hoje focados na camada de servidor.                                                               |
+| `public/`           | Assets públicos, como logos, manifest e robots.                                                                  |
+| `scripts/`          | Scripts utilitários executados manualmente.                                                                      |
+
+Regra prática: tela ou fluxo de usuário fica em `src/features/`; regra de negócio e persistência ficam em `src/server/`; páginas e route handlers em `app/` devem permanecer finos.
+
+Alias TypeScript/JavaScript: `@/*` → `src/*`.
 
 ## Onde alterar (mapa rápido)
 
-| Área                    | Onde mexer                                                                                                                                                                             |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dashboard (início)**  | `src/features/dashboard/` (`Inicio.js`, `MetricsGrid.js`, `DashboardPanels.js`, `useDashboardData.js`, …) e rota `app/(app)/page.jsx`                                                  |
-| **Chamados**            | `src/features/chamados/` (telas, modais, `useChamadosQueries.js`); API em `app/api/chamados/`; regras em `src/server/services/chamadosService.js` e repositórios relacionados       |
-| **Usuários**            | `src/features/usuarios/`; `app/(app)/usuarios/`; `app/api/users/`; `src/server/services/userService.js`                                                                                |
-| **Ativos / patrimônio** | `src/features/ativos/`; `app/(app)/ativos/`; `app/api/ativos/`; `src/server/services/ativosService.js` (Prisma)                                                                        |
-| **Autenticação**        | `src/features/auth/Login.js`; `app/login/`; `app/api/auth/`; `src/server/services/authService.js`; contexto `src/contexts/authContext.js`; políticas `src/server/auth/policies.js`     |
-| **Conexão com banco**   | Pool SQL: `src/server/config/database.js`; variáveis: `src/server/config/env.js`; migrações: `db/migrations/`; Prisma: `prisma/schema.prisma` e `src/lib/prisma.js`                    |
-| **Estilos globais**     | `app/globals.css` (entrada Tailwind 4); tokens e utilitários em `src/styles/index.css` (import em `app/layout.jsx`)                                                                    |
+| Área                    | Onde mexer                                                                                                                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dashboard (início)**  | `src/features/dashboard/` (`Inicio.js`, `MetricsGrid.js`, `DashboardPanels.js`, `useDashboardData.js`, …) e rota `app/(app)/page.jsx`                                              |
+| **Chamados**            | `src/features/chamados/` (telas, modais, `useChamadosQueries.js`); API em `app/api/chamados/`; regras em `src/server/services/chamadosService.js` e repositórios relacionados      |
+| **Usuários**            | `src/features/usuarios/`; `app/(app)/usuarios/`; `app/api/users/`; `src/server/services/userService.js`                                                                            |
+| **Ativos / patrimônio** | `src/features/ativos/`; `app/(app)/ativos/`; `app/api/ativos/`; `src/server/services/ativosService.js` (Prisma)                                                                    |
+| **Autenticação**        | `src/features/auth/Login.js`; `app/login/`; `app/api/auth/`; `src/server/services/authService.js`; contexto `src/contexts/authContext.js`; políticas `src/server/auth/policies.js` |
+| **Conexão com banco**   | Pool SQL: `src/server/config/database.js`; variáveis: `src/server/config/env.js`; migrações: `db/migrations/`; Prisma: `prisma/schema.prisma` e `src/lib/prisma.js`                |
+| **Estilos globais**     | `app/globals.css` (entrada Tailwind 4); tokens e utilitários em `src/styles/index.css` (import em `app/layout.jsx`)                                                                |
 
 ## Comandos principais
 

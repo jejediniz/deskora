@@ -13,14 +13,14 @@ const files = [
   "src/features/ativos/AtivoDetalhesView.js",
   "src/features/ativos/AtivoDetalhesCliente.js",
   "src/features/ativos/EditarAtivoCliente.js",
-  "src/features/ativos/AtivoForm.js",
+  "src/features/ativos/AtivoForm.js"
 ];
 
 /** Longest keys first so partial strings do not break longer matches */
 const pairs = [
   [
     "text-zinc-950 [font-family:var(--font-display)] dark:text-zinc-50",
-    "text-od-text [font-family:var(--font-display)]",
+    "text-od-text [font-family:var(--font-display)]"
   ],
   ["text-zinc-900 dark:text-zinc-100", "text-od-text"],
   ["text-zinc-950 dark:text-zinc-50", "text-od-text"],
@@ -54,22 +54,13 @@ const pairs = [
   ["dark:bg-zinc-950", "dark:bg-od-bg"],
   ["dark:bg-zinc-900", "dark:bg-od-surface"],
   ["dark:bg-zinc-800", "dark:bg-od-surface-muted"],
-  [
-    "dark:from-zinc-900/50 dark:to-zinc-900/20",
-    "dark:from-od-surface/50 dark:to-od-surface/20",
-  ],
-  [
-    "dark:from-zinc-900/80 dark:to-zinc-950",
-    "dark:from-od-surface/80 dark:to-od-bg",
-  ],
-  [
-    "from-zinc-50/90 to-zinc-50/40",
-    "from-od-surface-soft/90 to-od-surface-soft/40",
-  ],
+  ["dark:from-zinc-900/50 dark:to-zinc-900/20", "dark:from-od-surface/50 dark:to-od-surface/20"],
+  ["dark:from-zinc-900/80 dark:to-zinc-950", "dark:from-od-surface/80 dark:to-od-bg"],
+  ["from-zinc-50/90 to-zinc-50/40", "from-od-surface-soft/90 to-od-surface-soft/40"],
   ["from-zinc-50/95 to-white", "from-od-surface-soft/95 to-od-card"],
   [
     "bg-gradient-to-b from-zinc-50/90 to-zinc-50/40",
-    "bg-gradient-to-b from-od-surface-soft/90 to-od-surface-soft/40",
+    "bg-gradient-to-b from-od-surface-soft/90 to-od-surface-soft/40"
   ],
   ["bg-zinc-50/80", "bg-od-surface-soft/80"],
   ["bg-zinc-50/60", "bg-od-surface-soft/60"],
@@ -106,13 +97,10 @@ const pairs = [
   ["shadow-zinc-900/20", "shadow-od-text/20"],
   ["shadow-zinc-900/15", "shadow-od-text/15"],
   ["shadow-zinc-900/10", "shadow-od-text/10"],
-  [
-    "from-zinc-800 to-zinc-950",
-    "from-od-text to-od-bg",
-  ],
+  ["from-zinc-800 to-zinc-950", "from-od-text to-od-bg"],
   [
     "dark:from-zinc-100 dark:to-zinc-300 dark:text-zinc-900",
-    "dark:from-od-surface-soft dark:to-od-border/40 dark:text-od-text",
+    "dark:from-od-surface-soft dark:to-od-border/40 dark:text-od-text"
   ],
   ["ring-zinc-900/10", "ring-od-text/10"],
   ["ring-zinc-200/80", "ring-od-border/80"],
@@ -129,7 +117,7 @@ const pairs = [
   ["hover:bg-zinc-800", "hover:bg-od-text/90"],
   [
     "dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900",
-    "dark:border-od-surface-soft dark:bg-od-surface-soft dark:text-od-text",
+    "dark:border-od-surface-soft dark:bg-od-surface-soft dark:text-od-text"
   ],
   ["dark:hover:bg-zinc-200", "dark:hover:bg-od-border/40"],
   ["placeholder:text-zinc-400", "placeholder:text-od-muted"],
@@ -137,15 +125,15 @@ const pairs = [
   ["border-zinc-200 ", "border-od-border "],
   [
     "absolute inset-0 bg-zinc-950/45 transition-opacity duration-200 dark:bg-zinc-950/65",
-    "absolute inset-0 bg-black/45 transition-opacity duration-200 dark:bg-black/60",
-  ],
+    "absolute inset-0 bg-black/45 transition-opacity duration-200 dark:bg-black/60"
+  ]
 ];
 
 const fixups = [
   ["hover:bg-od-border/30/70", "hover:bg-od-surface-muted/70"],
   [
     "absolute inset-0 bg-zinc-950/45 transition-opacity duration-200 dark:bg-od-bg/65",
-    "absolute inset-0 bg-black/45 transition-opacity duration-200 dark:bg-black/60",
+    "absolute inset-0 bg-black/45 transition-opacity duration-200 dark:bg-black/60"
   ],
   ["text-zinc-900 dark:text-zinc-50", "text-od-text"],
   ["text-zinc-600 dark:text-zinc-400", "text-od-muted"],
@@ -161,13 +149,13 @@ const fixups = [
   ["text-zinc-800", "text-od-text-soft"],
   ["text-zinc-700", "text-od-text-soft"],
   ["text-zinc-600 ", "text-od-muted "],
-  ["text-zinc-600\"", "text-od-muted\""],
+  ['text-zinc-600"', 'text-od-muted"'],
   ["text-zinc-500", "text-od-muted"],
   ["text-zinc-400", "text-od-muted"],
   ["text-zinc-900 ", "text-od-text "],
   ['text-zinc-900"', 'text-od-text"'],
-  ["? \"bg-zinc-900", "? \"bg-od-text"],
-  [" bg-zinc-900 ", " bg-od-text "],
+  ['? "bg-zinc-900', '? "bg-od-text'],
+  [" bg-zinc-900 ", " bg-od-text "]
 ];
 
 function migrate(content) {
@@ -189,5 +177,5 @@ for (const rel of files) {
   const before = fs.readFileSync(fp, "utf8");
   const after = migrate(before);
   fs.writeFileSync(fp, `${after.replace(/\s*$/, "")}\n`);
-  console.log("updated", rel);
+  console.info("updated", rel);
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Input, Select, Textarea } from "@/components/ui";
 
 export default function ChamadoEditModal({
@@ -8,7 +10,7 @@ export default function ChamadoEditModal({
   onClose,
   podeDefinirPrioridade,
   tecnicos,
-  erro,
+  erro
 }) {
   if (!open) return null;
 
@@ -72,12 +74,7 @@ export default function ChamadoEditModal({
               <option value="alta">Alta</option>
             </Select>
           ) : (
-            <Input
-              label="Prioridade"
-              value="Definida pelo técnico"
-              disabled
-              readOnly
-            />
+            <Input label="Prioridade" value="Definida pelo técnico" disabled readOnly />
           )}
 
           <Select
@@ -94,12 +91,7 @@ export default function ChamadoEditModal({
             ))}
           </Select>
 
-          <Select
-            label="Status"
-            name="status"
-            value={form.status}
-            onChange={onChange}
-          >
+          <Select label="Status" name="status" value={form.status} onChange={onChange}>
             <option value="aberto">Aberto</option>
             <option value="em_andamento">Em andamento</option>
             <option value="concluido">Concluído</option>

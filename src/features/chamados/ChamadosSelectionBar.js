@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui";
 
 export default function ChamadosSelectionBar({
@@ -5,7 +7,7 @@ export default function ChamadosSelectionBar({
   quantidadeConcluiveis,
   isTi,
   onAssumirSelecionados,
-  onConcluirSelecionados,
+  onConcluirSelecionados
 }) {
   if (selecionadosCount === 0) return null;
 
@@ -21,12 +23,7 @@ export default function ChamadosSelectionBar({
 
       <div className="selection-toolbar__actions">
         {isTi && (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={onAssumirSelecionados}
-          >
+          <Button type="button" variant="secondary" size="sm" onClick={onAssumirSelecionados}>
             Assumir selecionados
           </Button>
         )}

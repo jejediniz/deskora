@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useMemo, useState } from "react";
 import {
   useAtualizarChamadoMutation,
@@ -29,9 +31,7 @@ export function ChamadosProvider({ children }) {
     [chamadoEmEdicao, atualizarMutateAsync, criarChamado, excluirChamado]
   );
 
-  return (
-    <ChamadosContext.Provider value={value}>{children}</ChamadosContext.Provider>
-  );
+  return <ChamadosContext.Provider value={value}>{children}</ChamadosContext.Provider>;
 }
 
 export function useChamados() {

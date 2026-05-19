@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { Package } from "lucide-react";
-import {
-  STATUS_ATIVO_LABEL,
-  CATEGORIAS_ATIVO_SUGESTOES,
-} from "@/constants/ativos";
+import { STATUS_ATIVO_LABEL, CATEGORIAS_ATIVO_SUGESTOES } from "@/constants/ativos";
 import { criarAtivo, atualizarAtivo } from "@/services/api/ativosApi";
 import { Button, Card, Input, Select, Textarea } from "@/components/ui";
 import { useToast } from "@/contexts/toastContext";
@@ -25,7 +22,7 @@ export function emptyAtivoForm() {
     setor: "",
     localizacao: "",
     responsavel: "",
-    observacoes: "",
+    observacoes: ""
   };
 }
 
@@ -43,7 +40,7 @@ export function ativoToForm(val) {
     setor: val.setor ?? "",
     localizacao: val.localizacao ?? "",
     responsavel: val.responsavel ?? "",
-    observacoes: val.observacoes ?? "",
+    observacoes: val.observacoes ?? ""
   };
 }
 
@@ -60,7 +57,7 @@ function buildPayload(form) {
     setor: form.setor.trim() || null,
     localizacao: form.localizacao.trim() || null,
     responsavel: form.responsavel.trim() || null,
-    observacoes: form.observacoes.trim() || null,
+    observacoes: form.observacoes.trim() || null
   };
 }
 
@@ -70,12 +67,12 @@ export default function AtivoForm({
   initial,
   embedded = false,
   onSaved,
-  onCancelEdit,
+  onCancelEdit
 }) {
   const router = useRouter();
   const categoriasListId = useId().replace(/:/g, "");
   const [form, setForm] = useState(() =>
-    modo === "editar" ? ativoToForm(initial) : emptyAtivoForm(),
+    modo === "editar" ? ativoToForm(initial) : emptyAtivoForm()
   );
   const [campoErro, setCampoErro] = useState({});
   const [enviando, setEnviando] = useState(false);
@@ -121,7 +118,7 @@ export default function AtivoForm({
 
       if (!resultado?.id) {
         setErroBase(
-          "Não recebemos o registro confirmado do servidor. Verifique sua conexão e tente novamente.",
+          "Não recebemos o registro confirmado do servidor. Verifique sua conexão e tente novamente."
         );
         return;
       }
@@ -147,7 +144,11 @@ export default function AtivoForm({
         detalhes.length > 0 &&
         typeof detalhes[0]?.message === "string"
       ) {
-        mensagem = detalhes.map((d) => d.message).filter(Boolean).join(" · ") || base;
+        mensagem =
+          detalhes
+            .map((d) => d.message)
+            .filter(Boolean)
+            .join(" · ") || base;
       }
       setErroBase(mensagem);
       if (Array.isArray(detalhes) && detalhes.length) {
@@ -192,8 +193,8 @@ export default function AtivoForm({
                   {titulo}
                 </h1>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-od-muted">
-                  Controle interno do que entra no patrimônio e para qual setor ou local o bem é destinado. Sem venda nem
-                  valores financeiros.
+                  Controle interno do que entra no patrimônio e para qual setor ou local o bem é
+                  destinado. Sem venda nem valores financeiros.
                 </p>
               </div>
             </div>
@@ -266,18 +267,8 @@ export default function AtivoForm({
                 <option key={c} value={c} />
               ))}
             </datalist>
-            <Input
-              label="Marca"
-              name="marca"
-              value={form.marca}
-              onChange={handleChange}
-            />
-            <Input
-              label="Modelo"
-              name="modelo"
-              value={form.modelo}
-              onChange={handleChange}
-            />
+            <Input label="Marca" name="marca" value={form.marca} onChange={handleChange} />
+            <Input label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} />
           </div>
         </Card>
 
@@ -306,8 +297,8 @@ export default function AtivoForm({
         <Card className={cardShell}>
           <h3 className="form-section__eyebrow">3 · Onde está na empresa</h3>
           <p className="form-section__hint patrimonio-card__hint">
-            Destino interno quando o bem deixa o estoque geral ou muda de lugar — não é venda nem saída
-            externa.
+            Destino interno quando o bem deixa o estoque geral ou muda de lugar — não é venda nem
+            saída externa.
           </p>
           <div className="patrimonio-field-grid">
             <Input

@@ -1,5 +1,7 @@
+"use client";
+
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { Button } from "../components/ui";
+import { Button } from "@/components/ui";
 
 const ConfirmContext = createContext(null);
 
@@ -10,18 +12,21 @@ const INITIAL_STATE = {
   confirmLabel: "Confirmar",
   cancelLabel: "Cancelar",
   variant: "danger",
-  resolve: null,
+  resolve: null
 };
 
 export function ConfirmProvider({ children }) {
   const [dialog, setDialog] = useState(INITIAL_STATE);
 
-  const close = useCallback((result) => {
-    if (dialog.resolve) {
-      dialog.resolve(result);
-    }
-    setDialog(INITIAL_STATE);
-  }, [dialog]);
+  const close = useCallback(
+    (result) => {
+      if (dialog.resolve) {
+        dialog.resolve(result);
+      }
+      setDialog(INITIAL_STATE);
+    },
+    [dialog]
+  );
 
   const confirm = useCallback((options) => {
     return new Promise((resolve) => {
@@ -32,7 +37,7 @@ export function ConfirmProvider({ children }) {
         confirmLabel: options.confirmLabel || "Confirmar",
         cancelLabel: options.cancelLabel || "Cancelar",
         variant: options.variant || "danger",
-        resolve,
+        resolve
       });
     });
   }, []);

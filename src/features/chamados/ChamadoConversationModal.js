@@ -1,10 +1,9 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/contexts/authContext";
 import { useToast } from "@/contexts/toastContext";
-import {
-  useInteracoesChamado,
-  useCriarInteracaoMutation
-} from "./useChamadosQueries";
+import { useInteracoesChamado, useCriarInteracaoMutation } from "./useChamadosQueries";
 import { PRIORIDADE_LABEL, STATUS_LABEL } from "@/constants/chamados";
 import { formatDate } from "@/utils/formatters";
 import { Button, Textarea } from "@/components/ui";
@@ -22,7 +21,7 @@ function getDateLabel(value) {
   return new Date(value).toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "long",
-    year: "numeric",
+    year: "numeric"
   });
 }
 
@@ -31,7 +30,7 @@ export default function ChamadoConversationModal({
   open,
   onClose,
   allowInternal = false,
-  onUpdated,
+  onUpdated
 }) {
   const { usuario } = useAuth();
   const toast = useToast();
@@ -45,10 +44,7 @@ export default function ChamadoConversationModal({
   const interacoesQuery = useInteracoesChamado(chamadoId);
   const criarInteracao = useCriarInteracaoMutation(chamadoId);
 
-  const interacoes = useMemo(
-    () => interacoesQuery.data ?? [],
-    [interacoesQuery.data]
-  );
+  const interacoes = useMemo(() => interacoesQuery.data ?? [], [interacoesQuery.data]);
   const loading = interacoesQuery.isLoading;
   const saving = criarInteracao.isPending;
 
@@ -75,7 +71,7 @@ export default function ChamadoConversationModal({
 
     timelineRef.current.scrollTo({
       top: timelineRef.current.scrollHeight,
-      behavior: reducedMotion ? "auto" : "smooth",
+      behavior: reducedMotion ? "auto" : "smooth"
     });
   }, [interacoes, open]);
 
@@ -96,14 +92,14 @@ export default function ChamadoConversationModal({
         items.push({
           type: "separator",
           key: `separator-${dateLabel}`,
-          label: dateLabel,
+          label: dateLabel
         });
       }
 
       items.push({
         type: "message",
         key: interacao.id,
-        interacao,
+        interacao
       });
     });
 
@@ -123,7 +119,7 @@ export default function ChamadoConversationModal({
     try {
       await criarInteracao.mutateAsync({
         mensagem: mensagem.trim(),
-        tipo: allowInternal ? tipoMensagem : "publica",
+        tipo: allowInternal ? tipoMensagem : "publica"
       });
 
       setMensagem("");
@@ -180,11 +176,7 @@ export default function ChamadoConversationModal({
             </span>
             <span>
               <small>Técnico</small>
-              <strong>
-                {chamado.tecnico?.nome ||
-                  chamado.tecnico_responsavel?.nome ||
-                  "—"}
-              </strong>
+              <strong>{chamado.tecnico?.nome || chamado.tecnico_responsavel?.nome || "—"}</strong>
             </span>
             <span>
               <small>Atualizado</small>
@@ -233,16 +225,12 @@ export default function ChamadoConversationModal({
                       </div>
                       <div className="conversation-bubble__meta-right">
                         {interacao.tipo === "interna" && (
-                          <span className="conversation-bubble__tag">
-                            Nota interna
-                          </span>
+                          <span className="conversation-bubble__tag">Nota interna</span>
                         )}
                         <time>{formatDate(interacao.created_at)}</time>
                       </div>
                     </div>
-                    <div className="conversation-bubble__content">
-                      {interacao.mensagem}
-                    </div>
+                    <div className="conversation-bubble__content">{interacao.mensagem}</div>
                   </div>
                 </article>
               );

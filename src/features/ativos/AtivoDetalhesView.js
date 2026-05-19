@@ -26,9 +26,7 @@ function Secao({ id, titulo, intro, children }) {
       <h2 id={id} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-od-muted">
         {titulo}
       </h2>
-      {intro ? (
-        <p className="mt-2 text-sm leading-relaxed text-od-muted">{intro}</p>
-      ) : null}
+      {intro ? <p className="mt-2 text-sm leading-relaxed text-od-muted">{intro}</p> : null}
       {children}
     </section>
   );
@@ -133,8 +131,8 @@ export default function AtivoDetalhesView({ ativo }) {
             Movimentações entre setores
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-od-muted">
-            Histórico detalhado de entradas e transferências será exibido aqui futuramente. Por enquanto, atualize setor,
-            local e responsável ao mudar o destino do bem.
+            Histórico detalhado de entradas e transferências será exibido aqui futuramente. Por
+            enquanto, atualize setor, local e responsável ao mudar o destino do bem.
           </p>
         </section>
       </div>

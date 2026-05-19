@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -5,10 +7,7 @@ import { STATUS_FECHADOS } from "@/constants/chamados";
 
 export function useChamadoFiltros() {
   const [pagina, setPagina] = useState(1);
-  const [limite, setLimiteState] = usePersistentState(
-    "operadesk:chamados:limite",
-    10
-  );
+  const [limite, setLimiteState] = usePersistentState("operadesk:chamados:limite", 10);
   const [busca, setBusca] = useState("");
   const [statusFiltro, setStatusFiltro] = usePersistentState(
     "operadesk:chamados:statusFiltro",
@@ -18,9 +17,7 @@ export function useChamadoFiltros() {
   // Busca debounced é o que vai para o servidor (param `q`)
   const buscaDebounced = useDebouncedValue(busca.trim(), 300);
 
-  const filtrosAtivos = [busca.trim() !== "", statusFiltro !== "todos"].filter(
-    Boolean
-  ).length;
+  const filtrosAtivos = [busca.trim() !== "", statusFiltro !== "todos"].filter(Boolean).length;
 
   const setLimite = useCallback(
     (novo) => {
@@ -53,9 +50,7 @@ export function useChamadoFiltros() {
           }
           return chamado.status === statusFiltro;
         })
-        .sort(
-          (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
-        );
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     },
     [statusFiltro]
   );
@@ -78,6 +73,6 @@ export function useChamadoFiltros() {
     setBusca,
     setLimite,
     setStatusFiltro,
-    statusFiltro,
+    statusFiltro
   };
 }

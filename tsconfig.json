@@ -1,22 +1,10 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@server/*": [
-        "./src/server/*"
-      ],
-      "@app/*": [
-        "./app/*"
-      ]
+      "@/*": ["./src/*"]
     },
     "target": "es2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
@@ -47,10 +35,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    ".next",
-    "tests",
-    "db/migrations"
-  ]
+  "exclude": ["node_modules", ".next", "tests", "db/migrations"]
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useChamadosMenuControl() {
@@ -56,6 +58,6 @@ export function useChamadosMenuControl() {
     menuButtonRefs,
     menuItemRefs,
     fecharMenu,
-    alternarMenu,
+    alternarMenu
   };
 }

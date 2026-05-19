@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 export function useAnimatedNumber(valor, duracao = 500) {

@@ -16,7 +16,10 @@ function PatrimonioLoading() {
       <div className="mb-6 h-40 animate-pulse rounded-2xl bg-od-border/30 dark:bg-od-surface-muted" />
       <div className="space-y-4">
         {["a", "b", "c"].map((k) => (
-          <div key={k} className="h-28 animate-pulse rounded-2xl bg-od-border/30 dark:bg-od-surface-muted" />
+          <div
+            key={k}
+            className="h-28 animate-pulse rounded-2xl bg-od-border/30 dark:bg-od-surface-muted"
+          />
         ))}
       </div>
     </div>

@@ -16,7 +16,7 @@ export default function AlterarSenhaModal({ open, onClose }) {
 
   const { containerRef } = useFocusTrap({
     active: open,
-    onClose,
+    onClose
   });
 
   useEffect(() => {

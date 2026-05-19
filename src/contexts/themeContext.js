@@ -1,11 +1,6 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+"use client";
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 const ThemeContext = createContext(null);
 
@@ -46,14 +41,12 @@ export function ThemeProvider({ children }) {
       theme,
       setTheme,
       toggleTheme,
-      isDark: theme === "dark",
+      isDark: theme === "dark"
     }),
     [theme, setTheme, toggleTheme]
   );
 
-  return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

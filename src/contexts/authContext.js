@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import http, { setUnauthorizedHandler } from "@/services/api/http";
 
@@ -80,7 +82,7 @@ export function AuthProvider({ children }) {
         carregando,
         erro,
         login,
-        logout,
+        logout
       }}
     >
       {children}

@@ -1,8 +1,7 @@
+"use client";
+
 import { useMemo } from "react";
-import {
-  useChamadosMetricsQuery,
-  useChamadosQuery
-} from "@/features/chamados/useChamadosQueries";
+import { useChamadosMetricsQuery, useChamadosQuery } from "@/features/chamados/useChamadosQueries";
 import { useAuth } from "@/contexts/authContext";
 import { isStatusFechado } from "@/constants/chamados";
 
@@ -39,9 +38,7 @@ export function useDashboardData() {
     const items = Array.isArray(raw) ? raw : [];
     return [...items]
       .sort(
-        (a, b) =>
-          new Date(b.updated_at || b.created_at) -
-          new Date(a.updated_at || a.created_at)
+        (a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at)
       )
       .slice(0, RECENT_LIMIT);
   }, [recentesQuery.data]);
@@ -50,7 +47,12 @@ export function useDashboardData() {
     const total = metrics.total;
     const statusItems = [
       { key: "aberto", label: "Abertos", value: metrics.abertos, variant: "warning" },
-      { key: "em_andamento", label: "Em andamento", value: metrics.em_andamento, variant: "primary" },
+      {
+        key: "em_andamento",
+        label: "Em andamento",
+        value: metrics.em_andamento,
+        variant: "primary"
+      },
       { key: "concluido", label: "Concluídos", value: metrics.concluidos, variant: "success" }
     ].map((item) => ({
       ...item,

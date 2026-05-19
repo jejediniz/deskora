@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "@/components/ui";
 import { STATUS_LABEL } from "@/constants/chamados";
 import { formatDateTime, formatRelative } from "@/utils/formatters";

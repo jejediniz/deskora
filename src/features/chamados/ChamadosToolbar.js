@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Input, Select } from "@/components/ui";
 
 export default function ChamadosToolbar({
@@ -10,7 +12,7 @@ export default function ChamadosToolbar({
   totalFiltrado,
   totalPagina,
   filtrosAtivos,
-  onLimparFiltros,
+  onLimparFiltros
 }) {
   return (
     <>
@@ -40,10 +42,7 @@ export default function ChamadosToolbar({
 
           <label className="table-limit">
             <span>Itens por página</span>
-            <select
-              value={limite}
-              onChange={(e) => onLimiteChange(Number(e.target.value))}
-            >
+            <select value={limite} onChange={(e) => onLimiteChange(Number(e.target.value))}>
               <option value={10}>10</option>
               <option value={20}>20</option>
               <option value={50}>50</option>
@@ -67,12 +66,7 @@ export default function ChamadosToolbar({
         </div>
 
         <div className="table-toolbar__actions">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={onLimparFiltros}
-          >
+          <Button type="button" variant="secondary" size="sm" onClick={onLimparFiltros}>
             Limpar filtros
           </Button>
         </div>

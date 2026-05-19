@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import MetricsGrid from "./MetricsGrid";
@@ -33,9 +35,7 @@ function buildMetricCards({ metrics, isComum }) {
       key: "andamento",
       label: "Em andamento",
       value: metrics.em_andamento,
-      sublabel: isComum
-        ? "Atendimentos em análise ou execução"
-        : "Técnicos trabalhando ativo",
+      sublabel: isComum ? "Atendimentos em análise ou execução" : "Técnicos trabalhando ativo",
       variant: "primary",
       icon: "🛠️",
       cta: isComum ? "Ver atendimentos em progresso" : "Ver atendimentos ativos"
@@ -44,9 +44,7 @@ function buildMetricCards({ metrics, isComum }) {
       key: "concluidos",
       label: "Concluídos",
       value: metrics.concluidos,
-      sublabel: isComum
-        ? "Chamados finalizados para consulta"
-        : "Atendimentos concluídos",
+      sublabel: isComum ? "Chamados finalizados para consulta" : "Atendimentos concluídos",
       variant: "success",
       icon: "✅",
       cta: "Ver histórico recente"
@@ -64,8 +62,7 @@ function buildDashboardConfig({ isComum, isTi, overview, metrics }) {
       highlightsEyebrow: "Leitura rápida",
       activityTitle: "Atualizações recentes",
       activityEyebrow: "Movimento",
-      emptyActivity:
-        "Seus chamados vão aparecer aqui conforme forem atualizados.",
+      emptyActivity: "Seus chamados vão aparecer aqui conforme forem atualizados.",
       highlights: [
         { label: "Alta prioridade ativa", value: metrics.altaPrioridadePendentes },
         { label: "Sem responsável", value: metrics.semTecnico },
@@ -78,9 +75,7 @@ function buildDashboardConfig({ isComum, isTi, overview, metrics }) {
 
   return {
     title: "Dashboard",
-    distributionTitle: isTi
-      ? "Distribuição da sua carteira atual"
-      : "Distribuição atual da fila",
+    distributionTitle: isTi ? "Distribuição da sua carteira atual" : "Distribuição atual da fila",
     distributionEyebrow: "Visão operacional",
     highlightsTitle: isTi ? "Pontos de atenção da sua fila" : "Pontos de atenção",
     highlightsEyebrow: "Leitura rápida",
@@ -138,20 +133,10 @@ export default function Inicio() {
   const router = useRouter();
   const [modalKey, setModalKey] = useState(null);
 
-  const {
-    isTi,
-    isComum,
-    usuario,
-    metrics,
-    overview,
-    recentes,
-    filtrarRecentesPorCard
-  } = useDashboardData();
+  const { isTi, isComum, usuario, metrics, overview, recentes, filtrarRecentesPorCard } =
+    useDashboardData();
 
-  const metricCards = useMemo(
-    () => buildMetricCards({ metrics, isComum }),
-    [metrics, isComum]
-  );
+  const metricCards = useMemo(() => buildMetricCards({ metrics, isComum }), [metrics, isComum]);
 
   const dashboardConfig = useMemo(
     () => buildDashboardConfig({ isComum, isTi, overview, metrics }),
@@ -170,11 +155,9 @@ export default function Inicio() {
 
   const fecharModal = useCallback(() => setModalKey(null), []);
 
-  const modalTitle =
-    metricCards.find((card) => card.key === modalKey)?.label || "";
+  const modalTitle = metricCards.find((card) => card.key === modalKey)?.label || "";
 
-  const primeiroNome =
-    (usuario?.nome || "").trim().split(" ")[0] || "por aí";
+  const primeiroNome = (usuario?.nome || "").trim().split(" ")[0] || "por aí";
   const saudacao = (() => {
     const hora = new Date().getHours();
     if (hora < 12) return "Bom dia";

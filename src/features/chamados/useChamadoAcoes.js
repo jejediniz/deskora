@@ -1,14 +1,11 @@
+"use client";
+
 import { useCallback } from "react";
 import { useConfirm } from "@/contexts/confirmContext";
 import { useToast } from "@/contexts/toastContext";
 import { STATUS_FECHADOS } from "@/constants/chamados";
 
-export function useChamadoAcoes({
-  usuario,
-  atualizarMutation,
-  excluirMutation,
-  setErro,
-}) {
+export function useChamadoAcoes({ usuario, atualizarMutation, excluirMutation, setErro }) {
   const { confirm } = useConfirm();
   const toast = useToast();
 
@@ -26,7 +23,7 @@ export function useChamadoAcoes({
       const ok = await confirm({
         title: "Excluir chamado",
         description: "Essa ação remove o chamado da lista. Deseja continuar?",
-        confirmLabel: "Excluir",
+        confirmLabel: "Excluir"
       });
       if (!ok) return;
 
@@ -45,7 +42,7 @@ export function useChamadoAcoes({
       try {
         await atualizarMutation.mutateAsync({
           id,
-          dados: { tecnicoId: usuario.id },
+          dados: { tecnicoId: usuario.id }
         });
         toast.success("Chamado assumido com sucesso.");
       } catch (error) {
@@ -61,14 +58,14 @@ export function useChamadoAcoes({
         title: "Concluir chamado",
         description: "O chamado será marcado como concluído. Deseja continuar?",
         confirmLabel: "Concluir",
-        variant: "primary",
+        variant: "primary"
       });
       if (!ok) return;
 
       try {
         await atualizarMutation.mutateAsync({
           id,
-          dados: { status: "concluido" },
+          dados: { status: "concluido" }
         });
         toast.success("Chamado concluído com sucesso.");
       } catch (error) {
@@ -81,8 +78,7 @@ export function useChamadoAcoes({
   const concluirSelecionados = useCallback(
     async (chamadosFiltrados, selecionados, onSuccess) => {
       const elegiveis = chamadosFiltrados.filter(
-        (c) =>
-          selecionados.includes(c.id) && !STATUS_FECHADOS.includes(c.status)
+        (c) => selecionados.includes(c.id) && !STATUS_FECHADOS.includes(c.status)
       );
       if (!elegiveis.length) return;
 
@@ -90,7 +86,7 @@ export function useChamadoAcoes({
         title: "Concluir chamados selecionados",
         description: `Os ${elegiveis.length} chamados selecionados serão concluídos.`,
         confirmLabel: "Concluir",
-        variant: "primary",
+        variant: "primary"
       });
       if (!ok) return;
 
@@ -99,7 +95,7 @@ export function useChamadoAcoes({
           elegiveis.map((c) =>
             atualizarMutation.mutateAsync({
               id: c.id,
-              dados: { status: "concluido" },
+              dados: { status: "concluido" }
             })
           )
         );
@@ -114,16 +110,14 @@ export function useChamadoAcoes({
 
   const assumirSelecionados = useCallback(
     async (chamadosFiltrados, selecionados, onSuccess) => {
-      const elegiveis = chamadosFiltrados.filter((c) =>
-        selecionados.includes(c.id)
-      );
+      const elegiveis = chamadosFiltrados.filter((c) => selecionados.includes(c.id));
       if (!elegiveis.length) return;
 
       const ok = await confirm({
         title: "Assumir chamados selecionados",
         description: `Você será definido como responsável por ${elegiveis.length} chamado(s).`,
         confirmLabel: "Assumir",
-        variant: "primary",
+        variant: "primary"
       });
       if (!ok) return;
 
@@ -132,7 +126,7 @@ export function useChamadoAcoes({
           elegiveis.map((c) =>
             atualizarMutation.mutateAsync({
               id: c.id,
-              dados: { tecnicoId: usuario.id },
+              dados: { tecnicoId: usuario.id }
             })
           )
         );
@@ -150,6 +144,6 @@ export function useChamadoAcoes({
     assumirSelecionados,
     concluirChamado,
     concluirSelecionados,
-    remover,
+    remover
   };
 }

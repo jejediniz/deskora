@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/contexts/authContext";
 import { useChamados } from "@/contexts/chamadosContext";
@@ -10,14 +12,14 @@ const DEMANDAS_PADRAO = [
   "Erro em sistema",
   "Impressora não funciona",
   "Solicitação de acesso",
-  "Outro problema",
+  "Outro problema"
 ];
 
 const FORM_INICIAL = {
   titulo: "",
   descricao: "",
   prioridade: "media",
-  setor: "",
+  setor: ""
 };
 
 const RASCUNHO_KEY = "operadesk:abrir-chamado:rascunho";
@@ -28,8 +30,7 @@ function validarCampo(nome, valor) {
   const valorTrim = (valor ?? "").trim();
   if (nome === "titulo") {
     if (!valorTrim) return "Informe o problema ou assunto.";
-    if (valorTrim.length < TITULO_MIN)
-      return `Use pelo menos ${TITULO_MIN} caracteres.`;
+    if (valorTrim.length < TITULO_MIN) return `Use pelo menos ${TITULO_MIN} caracteres.`;
     return null;
   }
   if (nome === "descricao") {
@@ -70,15 +71,14 @@ export default function ChamadoRapido() {
   const erros = useMemo(
     () => ({
       titulo: validarCampo("titulo", form.titulo),
-      descricao: validarCampo("descricao", form.descricao),
+      descricao: validarCampo("descricao", form.descricao)
     }),
     [form.titulo, form.descricao]
   );
 
   const formularioValido = !erros.titulo && !erros.descricao;
 
-  const temRascunho =
-    Boolean(form.titulo.trim() || form.descricao.trim() || form.setor.trim());
+  const temRascunho = Boolean(form.titulo.trim() || form.descricao.trim() || form.setor.trim());
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -136,7 +136,7 @@ export default function ChamadoRapido() {
         titulo: form.titulo.trim(),
         descricao: form.descricao.trim(),
         prioridade: isTi ? form.prioridade : "media",
-        setor: form.setor.trim() || undefined,
+        setor: form.setor.trim() || undefined
       });
 
       limparRascunho();
@@ -172,9 +172,7 @@ export default function ChamadoRapido() {
             list="demandas-padrao"
             placeholder="Ex.: Impressora não funciona"
             helperText={
-              mostrarErro("titulo")
-                ? undefined
-                : "Digite livremente ou escolha uma sugestão comum"
+              mostrarErro("titulo") ? undefined : "Digite livremente ou escolha uma sugestão comum"
             }
             error={mostrarErro("titulo")}
             required
@@ -242,11 +240,7 @@ export default function ChamadoRapido() {
                 </span>
               )}
             </div>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={carregando || !formularioValido}
-            >
+            <Button type="submit" variant="primary" disabled={carregando || !formularioValido}>
               {carregando ? "Enviando..." : "Abrir Chamado"}
             </Button>
           </div>

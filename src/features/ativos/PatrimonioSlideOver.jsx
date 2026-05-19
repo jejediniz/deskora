@@ -18,7 +18,13 @@ function DetalheLinha({ rotulo, valor }) {
   );
 }
 
-export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detalhes", onClose, onSaved }) {
+export default function PatrimonioSlideOver({
+  open,
+  ativoId,
+  initialTab = "detalhes",
+  onClose,
+  onSaved
+}) {
   const [aba, setAba] = useState("detalhes");
   const [ativo, setAtivo] = useState(null);
   const [carregando, setCarregando] = useState(false);
@@ -92,8 +98,11 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
             <p className="truncate font-mono text-[11px] tabular-nums tracking-tight text-od-muted">
               {ativo?.numeroPatrimonio ?? "…"}
             </p>
-            <h2 id="patrimonio-slide-titulo" className="mt-0.5 truncate text-lg font-semibold tracking-tight text-od-text">
-              {carregando ? "Carregando…" : ativo?.nome ?? "Patrimônio"}
+            <h2
+              id="patrimonio-slide-titulo"
+              className="mt-0.5 truncate text-lg font-semibold tracking-tight text-od-text"
+            >
+              {carregando ? "Carregando…" : (ativo?.nome ?? "Patrimônio")}
             </h2>
           </div>
           <button
@@ -144,7 +153,10 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
               {carregando || !ativo ? (
                 <ul className="space-y-2" aria-hidden>
                   {Array.from({ length: 8 }).map((_, i) => (
-                    <li key={i} className="h-10 animate-pulse rounded bg-od-surface-muted dark:bg-od-surface" />
+                    <li
+                      key={i}
+                      className="h-10 animate-pulse rounded bg-od-surface-muted dark:bg-od-surface"
+                    />
                   ))}
                 </ul>
               ) : (
@@ -178,7 +190,10 @@ export default function PatrimonioSlideOver({ open, ativoId, initialTab = "detal
               <div className="p-4">
                 <ul className="space-y-2" aria-hidden>
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <li key={i} className="h-12 animate-pulse rounded bg-od-surface-muted dark:bg-od-surface" />
+                    <li
+                      key={i}
+                      className="h-12 animate-pulse rounded bg-od-surface-muted dark:bg-od-surface"
+                    />
                   ))}
                 </ul>
               </div>

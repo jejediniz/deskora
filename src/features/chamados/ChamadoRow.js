@@ -1,3 +1,5 @@
+"use client";
+
 import { PRIORIDADE_LABEL, STATUS_LABEL } from "@/constants/chamados";
 import { formatDateTime, formatRelative } from "@/utils/formatters";
 
@@ -17,10 +19,9 @@ export default function ChamadoRow({
   onRemover,
   menuRef,
   buttonRef,
-  primeiroItemRef,
+  primeiroItemRef
 }) {
-  const podeConcluir =
-    (isTi || isAdmin) && !["concluido", "fechado"].includes(chamado.status);
+  const podeConcluir = (isTi || isAdmin) && !["concluido", "fechado"].includes(chamado.status);
   const temAcoes = isTi || isAdmin;
 
   function withFechar(handler) {
@@ -41,47 +42,27 @@ export default function ChamadoRow({
         />
       </div>
 
-      <div
-        className="management-row__status"
-        data-mobile-label="Status"
-      >
-        <span
-          className={`status status-${chamado.status ?? "desconhecido"}`}
-        >
+      <div className="management-row__status" data-mobile-label="Status">
+        <span className={`status status-${chamado.status ?? "desconhecido"}`}>
           {STATUS_LABEL[chamado.status] ?? chamado.status ?? "—"}
         </span>
       </div>
 
-      <div
-        className="management-row__priority"
-        data-mobile-label="Prioridade"
-      >
-        <span
-          className={`prioridade-badge prioridade-${chamado.prioridade ?? "media"}`}
-        >
-          {PRIORIDADE_LABEL[chamado.prioridade] ??
-            chamado.prioridade ??
-            "—"}
+      <div className="management-row__priority" data-mobile-label="Prioridade">
+        <span className={`prioridade-badge prioridade-${chamado.prioridade ?? "media"}`}>
+          {PRIORIDADE_LABEL[chamado.prioridade] ?? chamado.prioridade ?? "—"}
         </span>
       </div>
 
-      <div
-        className="management-row__requester"
-        data-mobile-label="Solicitante"
-      >
+      <div className="management-row__requester" data-mobile-label="Solicitante">
         <strong>{chamado.solicitante?.nome || "—"}</strong>
-        {chamado.setor && (
-          <div className="secondary-text">Setor: {chamado.setor}</div>
-        )}
+        {chamado.setor && <div className="secondary-text">Setor: {chamado.setor}</div>}
         {chamado.solicitante?.tipo && (
           <div className="secondary-text">{chamado.solicitante.tipo}</div>
         )}
       </div>
 
-      <div
-        className="management-row__title"
-        data-mobile-label="Demanda"
-      >
+      <div className="management-row__title" data-mobile-label="Demanda">
         <strong className="cell-title">{chamado.titulo}</strong>
         <div className="secondary-text">
           ID #{chamado.id}
@@ -94,10 +75,7 @@ export default function ChamadoRow({
         </div>
       </div>
 
-      <div
-        className="management-row__tech"
-        data-mobile-label="Técnico"
-      >
+      <div className="management-row__tech" data-mobile-label="Técnico">
         <strong>{chamado.tecnico?.nome || "—"}</strong>
       </div>
 
@@ -123,11 +101,7 @@ export default function ChamadoRow({
             </button>
 
             {menuAberto && (
-              <div
-                id={`acoes-menu-${chamado.id}`}
-                role="menu"
-                className="acoes-dropdown"
-              >
+              <div id={`acoes-menu-${chamado.id}`} role="menu" className="acoes-dropdown">
                 {isTi && (
                   <button
                     type="button"

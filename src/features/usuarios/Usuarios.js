@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useConfirm } from "@/contexts/confirmContext";
@@ -81,7 +83,7 @@ export default function Usuarios() {
     const confirmado = await confirm({
       title: "Excluir usuário",
       description: "Essa ação remove o usuário do sistema. Deseja continuar?",
-      confirmLabel: "Excluir",
+      confirmLabel: "Excluir"
     });
     if (!confirmado) return;
     setErro(null);
@@ -111,12 +113,10 @@ export default function Usuarios() {
           .filter(Boolean)
           .some((valor) => valor.toLowerCase().includes(termo));
 
-      const correspondeTipo =
-        tipoFiltro === "todos" || usuario.tipo === tipoFiltro;
+      const correspondeTipo = tipoFiltro === "todos" || usuario.tipo === tipoFiltro;
 
       const correspondeStatus =
-        statusFiltro === "todos" ||
-        (statusFiltro === "ativos" ? usuario.ativo : !usuario.ativo);
+        statusFiltro === "todos" || (statusFiltro === "ativos" ? usuario.ativo : !usuario.ativo);
 
       return correspondeBusca && correspondeTipo && correspondeStatus;
     });
@@ -140,12 +140,12 @@ export default function Usuarios() {
 
       <div className="table-card">
         <div className="table-header">
-            <div>
-              <strong>Equipe cadastrada</strong>
-              <p className="table-header__subtitle">
-                Busque ou filtre por perfil e status. Para cadastrar, use o botão acima.
-              </p>
-            </div>
+          <div>
+            <strong>Equipe cadastrada</strong>
+            <p className="table-header__subtitle">
+              Busque ou filtre por perfil e status. Para cadastrar, use o botão acima.
+            </p>
+          </div>
         </div>
 
         {(erro || sucesso) && (
@@ -156,167 +156,173 @@ export default function Usuarios() {
         )}
 
         <div className="table-actions">
-            <div className="table-search-row table-search-row--users">
-              <Input
-                label="Buscar usuários"
-                hideLabel
-                className="table-search"
-                placeholder="Buscar por nome, email ou perfil"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-              />
+          <div className="table-search-row table-search-row--users">
+            <Input
+              label="Buscar usuários"
+              hideLabel
+              className="table-search"
+              placeholder="Buscar por nome, email ou perfil"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
 
-              <Select
-                label="Tipo"
-                hideLabel
-                className="table-filter table-filter--compact"
-                value={tipoFiltro}
-                onChange={(e) => setTipoFiltro(e.target.value)}
-              >
-                <option value="todos">Todos os perfis</option>
-                <option value="comum">Comum</option>
-                <option value="ti">TI</option>
-              </Select>
+            <Select
+              label="Tipo"
+              hideLabel
+              className="table-filter table-filter--compact"
+              value={tipoFiltro}
+              onChange={(e) => setTipoFiltro(e.target.value)}
+            >
+              <option value="todos">Todos os perfis</option>
+              <option value="comum">Comum</option>
+              <option value="ti">TI</option>
+            </Select>
 
-              <Select
-                label="Status"
-                hideLabel
-                className="table-filter table-filter--compact"
-                value={statusFiltro}
-                onChange={(e) => setStatusFiltro(e.target.value)}
-              >
-                <option value="todos">Todos os status</option>
-                <option value="ativos">Ativos</option>
-                <option value="inativos">Inativos</option>
-              </Select>
-            </div>
+            <Select
+              label="Status"
+              hideLabel
+              className="table-filter table-filter--compact"
+              value={statusFiltro}
+              onChange={(e) => setStatusFiltro(e.target.value)}
+            >
+              <option value="todos">Todos os status</option>
+              <option value="ativos">Ativos</option>
+              <option value="inativos">Inativos</option>
+            </Select>
+          </div>
         </div>
 
         <div className="table-toolbar">
-            <div className="table-toolbar__summary">
-              <strong>{usuariosFiltrados.length}</strong>
-              <span>de {usuarios.length} usuário{usuarios.length === 1 ? "" : "s"}</span>
-            </div>
+          <div className="table-toolbar__summary">
+            <strong>{usuariosFiltrados.length}</strong>
+            <span>
+              de {usuarios.length} usuário{usuarios.length === 1 ? "" : "s"}
+            </span>
+          </div>
 
-            <div className="table-toolbar__stats">
-              <span className="mini-stat">
-                <strong>{usuariosAtivos}</strong>
-                <span>ativos</span>
-              </span>
-              <span className="mini-stat">
-                <strong>{usuariosTi}</strong>
-                <span>TI</span>
-              </span>
-              <span className="mini-stat">
-                <strong>{usuariosAdmin}</strong>
-                <span>admins</span>
-              </span>
-            </div>
+          <div className="table-toolbar__stats">
+            <span className="mini-stat">
+              <strong>{usuariosAtivos}</strong>
+              <span>ativos</span>
+            </span>
+            <span className="mini-stat">
+              <strong>{usuariosTi}</strong>
+              <span>TI</span>
+            </span>
+            <span className="mini-stat">
+              <strong>{usuariosAdmin}</strong>
+              <span>admins</span>
+            </span>
+          </div>
         </div>
 
         <table className="chamados-table usuarios-table">
-            <thead>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Tipo</th>
+              <th>Admin</th>
+              <th>Ativo</th>
+              <th className="acoes-col">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {carregando && (
               <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Tipo</th>
-                <th>Admin</th>
-                <th>Ativo</th>
-                <th className="acoes-col">Ações</th>
+                <td colSpan="6">Carregando...</td>
               </tr>
-            </thead>
-            <tbody>
-              {carregando && (
-                <tr>
-                  <td colSpan="6">Carregando...</td>
-                </tr>
-              )}
-              {!carregando && usuariosFiltrados.length === 0 && (
-                <tr>
-                  <td colSpan="6">
-                    <EmptyState
-                      title="Nenhum usuário encontrado"
-                      description="Tente ajustar a busca ou os filtros para localizar alguém da equipe."
-                    />
-                  </td>
-                </tr>
-              )}
-              {usuariosFiltrados.map((u) => {
-                const primeiroItemRef = (node) => {
-                  if (node) menuItemRefs.current[u.id] = node;
-                };
+            )}
+            {!carregando && usuariosFiltrados.length === 0 && (
+              <tr>
+                <td colSpan="6">
+                  <EmptyState
+                    title="Nenhum usuário encontrado"
+                    description="Tente ajustar a busca ou os filtros para localizar alguém da equipe."
+                  />
+                </td>
+              </tr>
+            )}
+            {usuariosFiltrados.map((u) => {
+              const primeiroItemRef = (node) => {
+                if (node) menuItemRefs.current[u.id] = node;
+              };
 
-                return (
-                  <tr key={u.id}>
-                    <td data-label="Nome">
-                      <strong className="cell-title">{u.nome}</strong>
-                      {u.admin && <div className="secondary-text">Administrador</div>}
-                    </td>
-                    <td data-label="Email">{u.email}</td>
-                    <td data-label="Tipo">
-                      <span className={`role-badge role-badge--${u.tipo}`}>
-                        {u.tipo === "ti" ? "TI" : "Comum"}
-                      </span>
-                    </td>
-                    <td data-label="Admin">
-                      <span className={`role-badge ${u.admin ? "role-badge--admin" : "role-badge--neutral"}`}>
-                        {u.admin ? "Sim" : "Não"}
-                      </span>
-                    </td>
-                    <td data-label="Ativo">
-                      <span className={`role-badge ${u.ativo ? "role-badge--active" : "role-badge--inactive"}`}>
-                        {u.ativo ? "Ativo" : "Inativo"}
-                      </span>
-                    </td>
-                    <td data-label="Ações" className="cell-actions">
-                      <div
-                        className="acoes-menu"
+              return (
+                <tr key={u.id}>
+                  <td data-label="Nome">
+                    <strong className="cell-title">{u.nome}</strong>
+                    {u.admin && <div className="secondary-text">Administrador</div>}
+                  </td>
+                  <td data-label="Email">{u.email}</td>
+                  <td data-label="Tipo">
+                    <span className={`role-badge role-badge--${u.tipo}`}>
+                      {u.tipo === "ti" ? "TI" : "Comum"}
+                    </span>
+                  </td>
+                  <td data-label="Admin">
+                    <span
+                      className={`role-badge ${u.admin ? "role-badge--admin" : "role-badge--neutral"}`}
+                    >
+                      {u.admin ? "Sim" : "Não"}
+                    </span>
+                  </td>
+                  <td data-label="Ativo">
+                    <span
+                      className={`role-badge ${u.ativo ? "role-badge--active" : "role-badge--inactive"}`}
+                    >
+                      {u.ativo ? "Ativo" : "Inativo"}
+                    </span>
+                  </td>
+                  <td data-label="Ações" className="cell-actions">
+                    <div
+                      className="acoes-menu"
+                      ref={(node) => {
+                        if (menuAbertoId === u.id) {
+                          menuRef.current = node;
+                        }
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="acoes-trigger"
+                        aria-haspopup="menu"
+                        aria-expanded={menuAbertoId === u.id}
+                        aria-controls={`acoes-menu-usuario-${u.id}`}
+                        onClick={() => abrirMenu(u.id)}
                         ref={(node) => {
-                          if (menuAbertoId === u.id) {
-                            menuRef.current = node;
-                          }
+                          if (node) menuButtonRefs.current[u.id] = node;
                         }}
                       >
-                        <button
-                          type="button"
-                          className="acoes-trigger"
-                          aria-haspopup="menu"
-                          aria-expanded={menuAbertoId === u.id}
-                          aria-controls={`acoes-menu-usuario-${u.id}`}
-                          onClick={() => abrirMenu(u.id)}
-                          ref={(node) => {
-                            if (node) menuButtonRefs.current[u.id] = node;
-                          }}
-                        >
-                          <span className="sr-only">Abrir ações</span>
-                          <span aria-hidden="true">⋮</span>
-                        </button>
+                        <span className="sr-only">Abrir ações</span>
+                        <span aria-hidden="true">⋮</span>
+                      </button>
 
-                        {menuAbertoId === u.id && (
-                          <div
-                            id={`acoes-menu-usuario-${u.id}`}
-                            role="menu"
-                            className="acoes-dropdown"
+                      {menuAbertoId === u.id && (
+                        <div
+                          id={`acoes-menu-usuario-${u.id}`}
+                          role="menu"
+                          className="acoes-dropdown"
+                        >
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              fecharMenu();
+                              handleExcluir(u.id);
+                            }}
+                            ref={primeiroItemRef}
                           >
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() => {
-                                fecharMenu();
-                                handleExcluir(u.id);
-                              }}
-                              ref={primeiroItemRef}
-                            >
-                              Excluir
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+                            Excluir
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
       </div>
     </div>

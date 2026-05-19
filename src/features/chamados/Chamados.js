@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 import { Button, EmptyState, PageHeader, SkeletonRow } from "@/components/ui";
 import ChamadosToolbar from "./ChamadosToolbar";
@@ -9,10 +11,9 @@ const ChamadoEditModal = dynamic(() => import("./ChamadoEditModal"), {
   ssr: false
 });
 
-const ChamadoConversationModal = dynamic(
-  () => import("./ChamadoConversationModal"),
-  { ssr: false }
-);
+const ChamadoConversationModal = dynamic(() => import("./ChamadoConversationModal"), {
+  ssr: false
+});
 
 export default function Chamados() {
   const {

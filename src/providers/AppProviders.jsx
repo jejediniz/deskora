@@ -7,7 +7,7 @@ import { QueryProvider } from "@/contexts/queryProvider";
 import { ThemeProvider } from "@/contexts/themeContext";
 import { ToastProvider } from "@/contexts/toastContext";
 
-export default function Providers({ children }) {
+export default function AppProviders({ children }) {
   return (
     <ThemeProvider>
       <QueryProvider>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui";
 import { PRIORIDADE_LABEL, STATUS_LABEL } from "@/constants/chamados";
 import { formatDate, formatDateTime, formatRelative } from "@/utils/formatters";
@@ -6,11 +8,7 @@ import { useFocusTrap } from "@/hooks/useFocusTrap";
 const MAX_VISIBLE = 8;
 
 function getTecnicoNome(chamado) {
-  return (
-    chamado.tecnico?.nome ||
-    chamado.tecnico_responsavel?.nome ||
-    "Não atribuído"
-  );
+  return chamado.tecnico?.nome || chamado.tecnico_responsavel?.nome || "Não atribuído";
 }
 
 export default function DashboardModal({
@@ -68,9 +66,7 @@ export default function DashboardModal({
         </div>
 
         {chamados.length === 0 ? (
-          <p className="dashboard-modal__empty">
-            Nenhum chamado encontrado para este filtro.
-          </p>
+          <p className="dashboard-modal__empty">Nenhum chamado encontrado para este filtro.</p>
         ) : (
           <ul className="dashboard-modal__list">
             {chamados.slice(0, MAX_VISIBLE).map((chamado) => (
@@ -81,7 +77,9 @@ export default function DashboardModal({
                       <span className={`status-badge ${chamado.status || "aberto"}`}>
                         {STATUS_LABEL[chamado.status] || chamado.status}
                       </span>
-                      <span className={`prioridade-badge prioridade-${chamado.prioridade || "media"}`}>
+                      <span
+                        className={`prioridade-badge prioridade-${chamado.prioridade || "media"}`}
+                      >
                         {PRIORIDADE_LABEL[chamado.prioridade] || "Média"}
                       </span>
                     </div>

@@ -1,15 +1,5 @@
-const {
-  authenticate,
-  getTokenFromRequest,
-  requireAdmin,
-  requireTiOuAdmin
-} = require('./http/auth')
-const {
-  authCookieOptions,
-  clearAuthCookie,
-  readAuthCookie,
-  setAuthCookie
-} = require('./http/cookies')
+const { authenticate, getTokenFromRequest, requireAdmin, requireTiOuAdmin } = require("./auth");
+const { authCookieOptions, clearAuthCookie, readAuthCookie, setAuthCookie } = require("./cookies");
 const {
   created,
   generateRequestId,
@@ -18,14 +8,8 @@ const {
   noContent,
   run,
   success
-} = require('./http/response')
-const {
-  getClientIp,
-  queryObject,
-  readBody,
-  routeParams,
-  validate
-} = require('./http/request')
+} = require("./response");
+const { getClientIp, queryObject, readBody, routeParams, validate } = require("./request");
 
 module.exports = {
   authCookieOptions,
@@ -48,4 +32,4 @@ module.exports = {
   setAuthCookie,
   success,
   validate
-}
+};

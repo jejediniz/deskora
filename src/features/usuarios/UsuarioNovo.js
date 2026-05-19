@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,14 +18,14 @@ export default function UsuarioNovo() {
     senha: "",
     tipo: "comum",
     admin: false,
-    ativo: true,
+    ativo: true
   });
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : value
     }));
   }
 
@@ -62,7 +64,10 @@ export default function UsuarioNovo() {
           }
         />
 
-        <form onSubmit={handleSubmit} className="form-card form-card--standalone form-card--usuario-novo">
+        <form
+          onSubmit={handleSubmit}
+          className="form-card form-card--standalone form-card--usuario-novo"
+        >
           {erro && <div className="alert alert-error">{erro}</div>}
 
           <div className="form-section">
@@ -117,12 +122,7 @@ export default function UsuarioNovo() {
 
             <div className="usuario-novo-checkboxes" role="group" aria-labelledby="sec-perfil">
               <label className="checkbox-field">
-                <input
-                  type="checkbox"
-                  name="admin"
-                  checked={form.admin}
-                  onChange={handleChange}
-                />
+                <input type="checkbox" name="admin" checked={form.admin} onChange={handleChange} />
                 <span>Administrador (acesso de gestão global)</span>
               </label>
 

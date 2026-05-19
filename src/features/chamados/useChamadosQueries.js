@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   listarChamados,
@@ -13,11 +15,7 @@ import { listarTecnicos } from "@/services/api/usuariosApi";
 export const CHAMADOS_QUERY_KEY = ["chamados"];
 export const TECNICOS_QUERY_KEY = ["usuarios", "tecnicos"];
 export const CHAMADOS_METRICS_QUERY_KEY = ["chamados", "metrics"];
-export const INTERACOES_QUERY_KEY = (chamadoId) => [
-  "chamados",
-  "interacoes",
-  String(chamadoId)
-];
+export const INTERACOES_QUERY_KEY = (chamadoId) => ["chamados", "interacoes", String(chamadoId)];
 
 const CHAMADOS_PREFIX = { queryKey: CHAMADOS_QUERY_KEY };
 
@@ -105,9 +103,7 @@ export function useAtualizarChamadoMutation() {
         return {
           ...data,
           items: data.items.map((c) =>
-            c.id === id
-              ? { ...c, ...dados, updated_at: new Date().toISOString() }
-              : c
+            c.id === id ? { ...c, ...dados, updated_at: new Date().toISOString() } : c
           )
         };
       });

@@ -22,7 +22,6 @@
     "db:migrate": "node-pg-migrate -m db/migrations -j js --envPath .env up",
     "db:migrate:down": "node-pg-migrate -m db/migrations -j js --envPath .env down",
     "db:migrate:create": "node-pg-migrate -m db/migrations -j js create",
-    "logos:transparent": "node scripts/extract-transparent-logos.mjs",
     "prepare": "husky || true",
     "postinstall": "prisma generate"
   },
